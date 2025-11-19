@@ -1,4 +1,4 @@
-A simple engine (more like a framework) written in python using raylib.
+A simple engine written in python using raylib.
 Engine folder is expected to be in the root folder of the project.
 
 Current functionality implemented
