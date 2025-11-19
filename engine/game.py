@@ -11,6 +11,8 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
     engine.set_window_monitor(monitor)
     engine.set_target_fps(target_fps)
 
+    engine.init_audio_device()
+
     engine.assets.set_image_path(image_path)
     engine.assets.set_sound_path(audio_path)
 

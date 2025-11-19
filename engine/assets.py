@@ -34,12 +34,16 @@ class Assets:
         name = ids.pop().split(".")[0]
         texture = engine.load_texture(full_path)
 
+        print(f"loading image: {path}")
+
         self.insert_asset(self.textures, ids, name, texture)
 
     def load_sound(self, full_path, path):
         ids = path.split("/")
         name = ids.pop().split(".")[0]
         sound = engine.load_sound(full_path)
+
+        print(f"loading sound: {path}")
 
         self.insert_asset(self.sounds, ids, name, sound)
 
@@ -50,7 +54,7 @@ class Assets:
             parts = p.split(".")
 
             if parts[len(parts) - 1] in suffixes:
-                self.load_texture(f"{path}/{p}", f"{path}/{p}".removeprefix(start_path + "/"))
+                func(f"{path}/{p}", f"{path}/{p}".removeprefix(start_path + "/"))
             elif os.path.isdir(path):
                 self.file_op_recursive(start_path, f"{path}/{p}", func, suffixes)
 

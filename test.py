@@ -32,6 +32,7 @@ class Main(engine.Game):
             "test window",
             target_fps=60,
             image_path="assets/images",
+            audio_path="assets/audio",
             input_map_path="assets/input_map.json",
         )
 
@@ -47,7 +48,8 @@ class Main(engine.Game):
             self.quit()
 
         if engine.input.is_pressed("log"):
-            engine.log.write("Test log message.")
+            engine.log.write("Playing sound.")
+            engine.play_sound_ex(engine.assets.sounds["sound"])
 
     def update(self):
         self.handle_inputs()
