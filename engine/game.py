@@ -15,6 +15,9 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
 
     engine.input.load_input_map(input_map_path)
 
+    # for other parts of the engine
+    engine.data.screen_size = size
+
 class Game(engine.ElementSingleton):
     def __init__(self):
         super().__init__()

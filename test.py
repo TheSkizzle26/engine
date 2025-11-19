@@ -31,17 +31,21 @@ class Main(engine.Game):
         self.player = Player()
         self.bg_texture = engine.textures["office"]["74"]
 
+        engine.log.init_font()
+
     def handle_inputs(self):
         if engine.input.is_pressed("quit"):
             self.quit()
 
         if engine.input.is_pressed("shoot"):
-            print("shoot button pressed!")
+            print("log written!")
+            engine.log.write("Test log message.")
 
     def update(self):
         self.handle_inputs()
-
         self.player.update()
+
+        engine.log.update()
 
     def render(self):
         engine.begin_drawing()
@@ -49,6 +53,8 @@ class Main(engine.Game):
 
         engine.draw_texture(self.bg_texture, 0, 0, engine.WHITE)
         self.player.render()
+
+        engine.log.render()
 
         engine.end_drawing()
 
