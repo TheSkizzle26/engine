@@ -49,7 +49,7 @@ class Main(engine.Program):
 
         if engine.input.is_pressed("log"):
             engine.log.write("Playing sound.")
-            engine.play_sound_ex(engine.assets.sounds["sound"])
+            engine.play_sound_ex(engine.sounds["sound"])
 
     def update(self):
         self.handle_inputs()
