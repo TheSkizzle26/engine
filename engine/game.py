@@ -4,7 +4,8 @@ import sys
 
 def init(size, title, target_fps=0, flags=0, monitor=0,
          image_path="", audio_path="",
-         input_map_path=""):
+         input_map_path="",
+         internal_size=None):
     engine.set_config_flags(flags)
     engine.init_window(size[0], size[1], title)
     engine.set_window_monitor(monitor)
@@ -17,6 +18,7 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
 
     # for other parts of the engine
     engine.data.screen_size = size
+    engine.data.internal_size = internal_size if internal_size else size
 
 class Game(engine.ElementSingleton):
     def __init__(self):
