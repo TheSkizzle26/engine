@@ -6,9 +6,6 @@ class Element:
         self.e = elems
         self.e.register(self)
 
-    def reset(self):
-        ...
-
     def update(self):
         ...
 
