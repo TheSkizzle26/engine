@@ -4,9 +4,11 @@ Current functionality implemented
     - elements
     - game class
     - asset loading
+    - input mapping
+    - event system
+    - utility functions
 
 ToDo:
     - correct mouse position when scaling display
-    - event system
     - utility functions
     - maybe debug functionality?

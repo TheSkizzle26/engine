@@ -5,6 +5,6 @@ except ImportError:
 
 from engine.assets import assets, textures, sounds
 from engine.input import input
-from engine.event_bus import EventBus
+from engine.event_bus import event
 from engine.elements import Element, ElementSingleton, Elements
 from engine.game import Game, init
