@@ -22,7 +22,8 @@ class Main(engine.Game):
         engine.init(
             (800, 600),
             "test window",
-            image_path="assets/images"
+            image_path="assets/images",
+            input_map_path="assets/input_map.json",
         )
 
         engine.assets.load_assets()
@@ -31,8 +32,11 @@ class Main(engine.Game):
         self.bg_texture = engine.textures["office"]["74"]
 
     def handle_inputs(self):
-        if engine.is_key_pressed(engine.KeyboardKey.KEY_ESCAPE):
+        if engine.input.is_pressed("quit"):
             self.quit()
+
+        if engine.input.is_pressed("shoot"):
+            print("shoot button pressed!")
 
     def update(self):
         self.handle_inputs()

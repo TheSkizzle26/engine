@@ -6,7 +6,7 @@ Current functionality implemented
     - asset loading
 
 ToDo:
-    - input map
+    - correct mouse position when scaling display
     - event system
     - utility functions
     - maybe debug functionality?

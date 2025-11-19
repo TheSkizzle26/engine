@@ -3,7 +3,8 @@ import sys
 
 
 def init(size, title, target_fps=0, flags=0, monitor=0,
-         image_path="", audio_path=""):
+         image_path="", audio_path="",
+         input_map_path=""):
     engine.set_config_flags(flags)
     engine.init_window(size[0], size[1], title)
     engine.set_window_monitor(monitor)
@@ -11,6 +12,8 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
 
     engine.assets.set_image_path(image_path)
     engine.assets.set_sound_path(audio_path)
+
+    engine.input.load_input_map(input_map_path)
 
 class Game(engine.ElementSingleton):
     def __init__(self):

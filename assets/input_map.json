@@ -1,3 +1,4 @@
 {
-  "quit": "KEY_ESCAPE"
+  "quit": "KEY_ESCAPE",
+  "shoot": "MOUSE_BUTTON_LEFT"
 }
