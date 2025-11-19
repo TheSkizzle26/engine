@@ -10,7 +10,10 @@ from engine.input import input
 from engine.mouse import get_mouse_pos, get_internal_mouse_pos, get_internal_mouse_x, get_internal_mouse_y
 from engine.event_bus import event
 from engine.sound import play_sound_ex
-from engine.scene import scene, Scene
 from engine.elements import Element, ElementSingleton, Elements
+from engine.scene import scene, Scene
 from engine.logs import log, LogType
-from engine.game import Game, init
+from engine.game import Program, init
+
+print("Engine loaded successfully!")
+log.write("Engine loaded successfully!")

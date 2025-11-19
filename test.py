@@ -24,7 +24,7 @@ class Player(engine.ElementSingleton):
         engine.draw_rectangle(int(self.pos[0]), int(self.pos[1]), 50, 50, engine.WHITE)
 
 
-class Main(engine.Game):
+class Main(engine.Program):
     def __init__(self):
         super().__init__()
         engine.init(

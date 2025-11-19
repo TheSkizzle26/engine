@@ -1,4 +1,7 @@
-class Scene:
+import engine
+
+
+class Scene(engine.ElementSingleton):
     def on_load(self):
         ...
 
@@ -10,6 +13,8 @@ class Scene:
 
 class SceneManager:
     def __init__(self):
+        super().__init__()
+
         self._scene: Scene = Scene()
 
     def switch(self, scene: Scene):

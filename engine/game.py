@@ -22,7 +22,7 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
     engine.data.screen_size = size
     engine.data.internal_size = internal_size if internal_size else size
 
-class Game(engine.ElementSingleton):
+class Program(engine.ElementSingleton):
     def __init__(self):
         super().__init__()
 
