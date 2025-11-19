@@ -9,6 +9,7 @@ from engine.assets import assets, textures, sounds
 from engine.input import input
 from engine.mouse import get_mouse_pos, get_internal_mouse_pos, get_internal_mouse_x, get_internal_mouse_y
 from engine.event_bus import event
+from engine.sound import play_sound_ex
 from engine.scene import scene, Scene
 from engine.elements import Element, ElementSingleton, Elements
 from engine.logs import log, LogType

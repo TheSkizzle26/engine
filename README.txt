@@ -12,6 +12,7 @@ Current functionality implemented:
     - log system (can be rendered)
 
 ToDo:
+    - ui classes
     - maybe debug functionality?
     - maybe add documentation
 
