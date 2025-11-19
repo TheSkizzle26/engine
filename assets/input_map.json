@@ -1,4 +1,8 @@
 {
-  "quit": "KEY_ESCAPE",
-  "shoot": "MOUSE_BUTTON_LEFT"
+  "quit": ["KEY_ESCAPE", "KEY_F"],
+  "log": "MOUSE_BUTTON_LEFT",
+  "up": "KEY_W",
+  "down": "KEY_S",
+  "left": "KEY_A",
+  "right": "KEY_D"
 }

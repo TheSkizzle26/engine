@@ -10,7 +10,7 @@ class Assets:
         self.textures = {}
         self.sounds = {}
 
-        self.textures_suffixes = ["png", "jpg", "jpeg", "webp"]
+        self.textures_suffixes = ["png", "jpg"]
         self.sound_suffixes = ["wav", "mp3", "flac"]
 
     def set_image_path(self, path):
