@@ -12,7 +12,6 @@ Current functionality implemented
     - log system (can be rendered)
 
 ToDo:
-    - correct mouse position when scaling display
     - maybe debug functionality?
     - maybe add documentation
 
