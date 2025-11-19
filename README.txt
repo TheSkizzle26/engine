@@ -10,5 +10,4 @@ Current functionality implemented
 
 ToDo:
     - correct mouse position when scaling display
-    - utility functions
     - maybe debug functionality?
