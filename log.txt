@@ -1,9 +1,1 @@
 [0.0] Engine loaded successfully!
-[21.319] Playing sound.
-[22.519] Playing sound.
-[23.186] Playing sound.
-[23.769] Playing sound.
-[24.386] Playing sound.
-[24.953] Playing sound.
-[25.536] Playing sound.
-[26.103] Playing sound.

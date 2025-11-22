@@ -138,6 +138,8 @@ class FRect(Rect):
 
     #----------OVERRIDES----------
 
+    # just the above but without converting everything to an int
+
     @property
     def x(self):
         return self._x
