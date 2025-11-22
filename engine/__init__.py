@@ -10,6 +10,7 @@ for name in to_exclude:
 from engine.deprecated import Rectangle
 from engine.utils import sign
 from engine.data import data
+from engine.vector import vector2_to_list, vector3_to_list, list_to_vector2, list_to_vector3
 from engine.rect import Rect
 from engine.assets import assets, textures, sounds
 from engine.input import input
@@ -17,6 +18,7 @@ from engine.mouse import get_mouse_pos, get_internal_mouse_pos, get_internal_mou
 from engine.event_bus import event
 from engine.sound import play_sound_ex
 from engine.elements import Element, ElementSingleton, Elements
+from engine.entities import Entity, EntitySingleton
 from engine.scene import scene, Scene
 from engine.logs import log, LogType
 from engine.game import Program, init

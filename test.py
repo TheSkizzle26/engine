@@ -1,12 +1,26 @@
+import random
 import engine
 
+"""
+Horrible code, but its only for testing anyway.
+"""
 
-class Player(engine.ElementSingleton):
+
+class Player(engine.EntitySingleton):
     def __init__(self):
-        super().__init__()
+        super().__init__((0, 0), (50, 50))
 
-        self.pos = [0, 0]
         self.speed = 3
+
+        self.collision_rects = []
+
+        for i in range(10):
+            self.collision_rects.append(engine.Rect(
+                random.random() * 800,
+                random.random() * 600,
+                25 + random.random() * 75,
+                25 + random.random() * 75
+            ))
 
     def update(self):
         movement = engine.Vector2(
@@ -17,16 +31,21 @@ class Player(engine.ElementSingleton):
         movement = engine.vector2_normalize(movement)
         movement = engine.vector2_multiply(movement, engine.Vector2(self.speed, self.speed))
 
-        self.pos[0] += movement.x
-        self.pos[1] += movement.y
+        self.move_and_collide(self.collision_rects, movement)
+
+    def render_rects(self):
+        for rect in self.collision_rects:
+            engine.draw_rectangle(int(rect.x), int(rect.y), int(rect.width), int(rect.height), engine.GOLD)
 
     def render(self):
         m_pos = engine.get_mouse_pos()
         rect = engine.Rect(m_pos[0]-25, m_pos[1]-25, 50, 50)
 
-        color = engine.RED if engine.Rect(self.pos[0], self.pos[1], 50, 50).colliderect(rect) else engine.WHITE
+        color = engine.RED if engine.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1]).colliderect(rect) else engine.WHITE
 
         engine.draw_rectangle(int(self.pos[0]), int(self.pos[1]), 50, 50, color)
+
+        self.render_rects()
 
 
 class Main(engine.Program):
