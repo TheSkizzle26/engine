@@ -3,6 +3,7 @@ Engine folder is expected to be in the root folder of the project.
 
 Current functionality implemented:
     - elements
+    - entities
     - program class
     - scenes
     - asset loading

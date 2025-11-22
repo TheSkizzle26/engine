@@ -13,6 +13,14 @@ class Assets:
         self.textures_suffixes = ["png", "jpg"]
         self.sound_suffixes = ["wav", "mp3", "flac"]
 
+    @staticmethod
+    def dict2list(dictionary, sort_by_number=False):
+        items = sorted(
+            dictionary.items(),
+            key=(lambda x: int(x[0])) if sort_by_number else None
+        )
+        return [item[1] for item in items]
+
     def set_image_path(self, path):
         self.texture_path = path.removesuffix("/")
 
