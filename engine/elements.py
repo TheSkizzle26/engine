@@ -12,7 +12,7 @@ class Element:
     def update(self):
         ...
 
-    def  render(self):
+    def render(self):
         ...
 
 class ElementSingleton(Element):
