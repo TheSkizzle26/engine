@@ -5,6 +5,9 @@ class Scene(engine.ElementSingleton):
     def on_load(self):
         ...
 
+    def on_unload(self):
+        ...
+
     def update(self, *args, **kwargs):
         ...
 
@@ -18,6 +21,7 @@ class SceneManager:
         self._scene: Scene = Scene()
 
     def switch(self, scene: Scene):
+        self._scene.on_unload()
         self._scene = scene
         self._scene.on_load()
 
