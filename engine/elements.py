@@ -6,6 +6,9 @@ class Element:
         self.e = elems
         self.e.register(self)
 
+    def delete(self):
+        self.e.delete(self)
+
     def update(self):
         ...
 
