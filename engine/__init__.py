@@ -3,8 +3,14 @@ try:
 except ImportError:
     raise ImportError('Package "raylib" needs to be installed!')
 
+to_exclude = ["Rectangle"]
+for name in to_exclude:
+    del globals()[name]
+
+from engine.deprecated import Rectangle
 from engine.utils import sign
 from engine.data import data
+from engine.rect import Rect
 from engine.assets import assets, textures, sounds
 from engine.input import input
 from engine.mouse import get_mouse_pos, get_internal_mouse_pos, get_internal_mouse_x, get_internal_mouse_y

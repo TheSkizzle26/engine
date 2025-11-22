@@ -10,6 +10,7 @@ Current functionality implemented:
     - event system
     - utility functions
     - log system (can be rendered)
+    - rectangle collision detection
 
 ToDo:
     - ui classes

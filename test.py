@@ -21,7 +21,12 @@ class Player(engine.ElementSingleton):
         self.pos[1] += movement.y
 
     def render(self):
-        engine.draw_rectangle(int(self.pos[0]), int(self.pos[1]), 50, 50, engine.WHITE)
+        m_pos = engine.get_mouse_pos()
+        rect = engine.Rect(m_pos[0]-25, m_pos[1]-25, 50, 50)
+
+        color = engine.RED if engine.Rect(self.pos[0], self.pos[1], 50, 50).colliderect(rect) else engine.WHITE
+
+        engine.draw_rectangle(int(self.pos[0]), int(self.pos[1]), 50, 50, color)
 
 
 class Main(engine.Program):
@@ -63,6 +68,9 @@ class Main(engine.Program):
 
         engine.draw_texture(self.bg_texture, 0, 0, engine.WHITE)
         self.player.render()
+
+        m_pos = engine.get_mouse_pos()
+        engine.draw_rectangle(m_pos[0]-25, m_pos[1]-25, 50, 50, engine.ORANGE)
 
         engine.log.render()
 
