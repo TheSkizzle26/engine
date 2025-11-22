@@ -14,7 +14,6 @@ Current functionality implemented:
     - rectangle collision detection
 
 ToDo:
-    - interactable class (also useful for debug)
     - ui classes
     - maybe debug functionality?
     - maybe add documentation
