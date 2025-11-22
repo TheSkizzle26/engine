@@ -31,11 +31,11 @@ class Player(engine.EntitySingleton):
         movement = engine.vector2_normalize(movement)
         movement = engine.vector2_multiply(movement, engine.Vector2(self.speed, self.speed))
 
-        self.move_and_collide(self.collision_rects, movement)
+        self.move_and_collide(self.collision_rects, engine.vector2_to_list(movement))
 
     def render_rects(self):
         for rect in self.collision_rects:
-            engine.draw_rectangle(int(rect.x), int(rect.y), int(rect.width), int(rect.height), engine.GOLD)
+            engine.draw_rectangle(rect.x, rect.y, rect.width, rect.height, engine.GOLD)
 
     def render(self):
         m_pos = engine.get_mouse_pos()

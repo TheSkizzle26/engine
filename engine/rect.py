@@ -8,11 +8,45 @@ class Rect:
         self.width = width
         self.height = height
 
+    #----------DEFAULT----------
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, val):
+        self._x = int(val)
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, val):
+        self._y = int(val)
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, val):
+        self._width = int(val)
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, val):
+        self._height = int(val)
+
     #----------SINGLE----------
 
     @property
     def top(self):
-        return self.y
+        return self._y
 
     @top.setter
     def top(self, val):
@@ -97,3 +131,41 @@ class Rect:
                (self.x + self.width > rect.x) and \
                (self.y < rect.y + rect.height) and \
                (self.y + self.height > rect.y)
+
+class FRect(Rect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    #----------OVERRIDES----------
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, val):
+        self._x = val
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, val):
+        self._y = val
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, val):
+        self._width = val
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, val):
+        self._height = val

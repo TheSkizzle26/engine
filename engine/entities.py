@@ -30,6 +30,8 @@ class Entity(engine.Element):
                 rect.left = other.right
                 self.collisions["left"] = True
 
+            self.pos[0] = rect.x
+
         self.pos[1] += frame_movement[1]
         rect = self.rect()
 
@@ -43,6 +45,8 @@ class Entity(engine.Element):
             elif frame_movement[1] < 0:
                 rect.top = other.bottom
                 self.collisions["top"] = True
+
+            self.pos[1] = rect.y
 
 class EntitySingleton(Entity):
     def __init__(self, pos, size, custom_id=None):
