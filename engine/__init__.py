@@ -11,7 +11,7 @@ from engine.deprecated import Rectangle
 from engine.utils import sign
 from engine.data import data
 from engine.vector import vector2_to_list, vector3_to_list, list_to_vector2, list_to_vector3
-from engine.rect import Rect
+from engine.rect import Rect, FRect
 from engine.assets import assets, textures, sounds
 from engine.input import input
 from engine.mouse import get_mouse_pos, get_internal_mouse_pos, get_internal_mouse_x, get_internal_mouse_y
