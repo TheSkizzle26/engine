@@ -23,9 +23,6 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
     engine.data.internal_size = internal_size if internal_size else size
 
 class Program(engine.ElementSingleton):
-    def __init__(self):
-        super().__init__()
-
     @staticmethod
     def quit():
         engine.close_window()
