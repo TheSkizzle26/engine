@@ -14,6 +14,9 @@ Current functionality implemented:
     - rectangle collision detection
 
 ToDo:
+    - camera class
+    - tilemap class
+    - interactive grass
     - ui classes
     - maybe debug functionality?
     - maybe add documentation

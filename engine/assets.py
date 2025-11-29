@@ -70,8 +70,13 @@ class Assets:
         self.file_op_recursive(path, path, func, suffixes)
 
     def load_assets(self):
+        start_time = engine.get_time()
+        engine.log.write("Loading assets...")
+
         if self.texture_path: self.load_asset_type(self.texture_path, self.load_texture, self.textures_suffixes)
         if self.sound_path: self.load_asset_type(self.sound_path, self.load_sound, self.sound_suffixes)
+
+        engine.log.write(f"Asset loading took {round(engine.get_time() - start_time, 2)} seconds.")
 
 
 assets = Assets()

@@ -1,1 +1,16 @@
 [0.0] Engine loaded successfully!
+[0.138] Loading assets...
+[0.148] Asset loading took 0.01 seconds.
+[11.588] Playing sound.
+[12.255] Playing sound.
+[12.755] Playing sound.
+[13.288] Playing sound.
+[15.271] Playing sound.
+[15.788] Playing sound.
+[16.305] Playing sound.
+[16.788] Playing sound.
+[18.388] Playing sound.
+[18.872] Playing sound.
+[19.322] Playing sound.
+[19.822] Playing sound.
+[20.555] Playing sound.
