@@ -19,6 +19,7 @@ ToDo:
     - tilemap class
     - interactive grass
     - ui classes
+    - rework asset manager
     - maybe debug functionality?
     - maybe add documentation
 
