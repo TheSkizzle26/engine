@@ -1,0 +1,49 @@
+import engine
+
+
+class Camera:
+    def __init__(self, pos, zoom, speed):
+        self._pos = list(pos)
+        self._target_pos = pos
+        self._zoom = zoom
+        self._target_zoom = zoom
+        self._speed = speed
+
+        self._camera = engine.Camera2D()
+
+    def set_pos(self, pos):
+        self._pos = list(pos)
+        self._target_pos = pos
+
+    def set_target_pos(self, pos):
+        self._target_pos = pos
+
+    def set_zoom(self, zoom):
+        self._zoom = zoom
+        self._target_zoom = zoom
+
+    def set_target_zoom(self, zoom):
+        self._target_zoom = zoom
+
+    def set_speed(self, speed):
+        self._speed = speed
+
+    def update(self):
+        delta = engine.get_frame_time()
+
+        self._pos[0] += (self._target_pos[0] - self._pos[0]) * self._speed * delta
+        self._pos[1] += (self._target_pos[1] - self._pos[1]) * self._speed * delta
+        self._zoom += (self._target_zoom - self._zoom) * self._speed * delta
+
+    def begin(self):
+        self._camera.offset = engine.Vector2(*self._pos)
+        self._camera.zoom = self._zoom
+
+        engine.begin_mode_2d(self._camera)
+
+    @staticmethod
+    def end():
+        engine.end_mode_2d()
+
+
+camera = Camera((0, 0), 1, 1)

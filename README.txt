@@ -4,6 +4,7 @@ Engine folder is expected to be in the root folder of the project.
 Current functionality implemented:
     - elements
     - entities
+    - camera
     - program class
     - scenes
     - asset loading
@@ -14,7 +15,6 @@ Current functionality implemented:
     - rectangle collision detection
 
 ToDo:
-    - camera class
     - tilemap class
     - interactive grass
     - ui classes

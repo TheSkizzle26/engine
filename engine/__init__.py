@@ -20,6 +20,7 @@ from engine.sound import play_sound_ex
 from engine.elements import Element, ElementSingleton, Elements
 from engine.entities import Entity, EntitySingleton
 from engine.scene import scene, Scene
+from engine.camera import camera
 from engine.logs import log, LogType
 from engine.game import Program, init
 
