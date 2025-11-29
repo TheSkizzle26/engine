@@ -15,6 +15,7 @@ Current functionality implemented:
     - rectangle collision detection
 
 ToDo:
+    - entity states
     - tilemap class
     - interactive grass
     - ui classes
