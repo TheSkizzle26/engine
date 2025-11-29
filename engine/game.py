@@ -13,7 +13,7 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
 
     engine.init_audio_device()
 
-    engine.assets.set_image_path(image_path)
+    engine.assets.set_texture_path(image_path)
     engine.assets.set_sound_path(audio_path)
 
     engine.input.load_input_map(input_map_path)

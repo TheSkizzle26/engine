@@ -60,10 +60,8 @@ class Main(engine.Program):
             input_map_path="assets/input_map.json",
         )
 
-        engine.assets.load_assets()
-
         self.player = Player()
-        self.bg_texture = engine.textures["dog"]
+        self.bg_texture = engine.assets.load_texture("dog.png")
 
         engine.log.init_font()
 
@@ -73,11 +71,13 @@ class Main(engine.Program):
 
         if engine.input.is_pressed("log"):
             engine.log.write("Playing sound.")
-            engine.play_sound_ex(engine.sounds["sound"])
+            engine.play_sound_ex(engine.assets.load_sound("sound.mp3"))
 
     def update(self):
         self.handle_inputs()
         self.player.update()
+
+        print(engine.assets.load_texture("dog.png"))
 
         engine.log.update()
 

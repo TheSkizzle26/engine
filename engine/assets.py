@@ -1,84 +1,75 @@
-import engine
+"""
+Not very efficient for big projects since it keeps every asset
+loaded at all times and doesn't allow to remove an asset since
+a reference to it is always stored.
+"""
+
 import os
+import engine
+import random
 
 
 class Assets:
-    def __init__(self):
-        self.texture_path = None
-        self.sound_path = None
+    def __init__(self, no_file_extension=False):
+        self.texture_path = ""
+        self.sound_path = ""
 
-        self.textures = {}
-        self.sounds = {}
+        self.assets = {
+            "textures": {},
+            "sounds": {}
+        }
 
-        self.textures_suffixes = ["png", "jpg"]
-        self.sound_suffixes = ["wav", "mp3", "flac"]
+        self.file_types = {
+            "textures": ["png", "jpg"],
+            "sounds": ["wav", "mp3"]
+        }
 
     @staticmethod
-    def dict2list(dictionary, sort_by_number=False):
-        items = sorted(
-            dictionary.items(),
-            key=(lambda x: int(x[0])) if sort_by_number else None
-        )
-        return [item[1] for item in items]
+    def hash(item):
+        random.seed(item)
+        return int.from_bytes(random.randbytes(4))
 
-    def set_image_path(self, path):
-        self.texture_path = path.removesuffix("/")
+    def set_texture_path(self, path):
+        self.texture_path = path + ("" if path.endswith("/") else "/")
 
     def set_sound_path(self, path):
-        self.sound_path = path.removesuffix("/")
+        self.sound_path = path + ("" if path.endswith("/") else "/")
 
-    @staticmethod
-    def insert_asset(target, ids, name, value):
-        cur = target
+    def _load_asset(self, path, base_path, group, func):
+        hash = self.hash(path)
+        if hash in self.assets[group]:
+            return self.assets[group][hash]
 
-        for i, id in enumerate(ids):
-            cur.setdefault(id, {})
-            cur = cur[id]
+        full_path = base_path + path
+        asset = func(full_path)
 
-        cur[name] = value
+        self.assets[group][hash] = asset
+        return asset
 
-    def load_texture(self, full_path, path):
-        ids = path.split("/")
-        name = ids.pop().split(".")[0]
-        texture = engine.load_texture(full_path)
+    def load_texture(self, path):
+        return self._load_asset(path, self.texture_path, "textures", engine.load_texture)
 
-        print(f"loading image: {path}")
+    def load_texture_group(self, path):
+        textures = []
 
-        self.insert_asset(self.textures, ids, name, texture)
-
-    def load_sound(self, full_path, path):
-        ids = path.split("/")
-        name = ids.pop().split(".")[0]
-        sound = engine.load_sound(full_path)
-
-        print(f"loading sound: {path}")
-
-        self.insert_asset(self.sounds, ids, name, sound)
-
-    def file_op_recursive(self, start_path, path, func, suffixes):
         path = path.removesuffix("/")
+        full_path = self.texture_path + path
 
-        for p in os.listdir(path):
-            parts = p.split(".")
+        file_names = [ # should sort the file names by number
+            str(i) for i in sorted(
+                [int(f[:f[::-1].index(".")]) for f in os.listdir(full_path)]
+            )
+        ]
 
-            if parts[len(parts) - 1] in suffixes:
-                func(f"{path}/{p}", f"{path}/{p}".removeprefix(start_path + "/"))
-            elif os.path.isdir(path):
-                self.file_op_recursive(start_path, f"{path}/{p}", func, suffixes)
+        print(file_names)
 
-    def load_asset_type(self, path, func, suffixes):
-        self.file_op_recursive(path, path, func, suffixes)
+        for file in file_names:
+            textures.append(self.load_texture(f"{path}/{file}"))
 
-    def load_assets(self):
-        start_time = engine.get_time()
-        engine.log.write("Loading assets...")
+        return textures
 
-        if self.texture_path: self.load_asset_type(self.texture_path, self.load_texture, self.textures_suffixes)
-        if self.sound_path: self.load_asset_type(self.sound_path, self.load_sound, self.sound_suffixes)
-
-        engine.log.write(f"Asset loading took {round(engine.get_time() - start_time, 2)} seconds.")
+    def load_sound(self, path):
+        return self._load_asset(path, self.sound_path, "sounds", engine.load_sound)
 
 
 assets = Assets()
-textures = assets.textures
-sounds = assets.sounds
