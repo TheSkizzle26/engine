@@ -1,3 +1,5 @@
+import math
+
 import engine
 
 """
@@ -12,41 +14,154 @@ angle is 0 facing top
 
 
 class GrassManager:
-    def __init__(self, chunk_size=64):
+    def __init__(self, grass_assets: "GrassAssets", chunk_size=8):
+        self.assets = grass_assets
+
         self.chunks = {}
         self.chunk_size = chunk_size
 
     def chunk_id(self, chunk_pos):
         return f"{int(chunk_pos[0])};{int(chunk_pos[1])}"
 
-    def spawn_blade(self, pos, texture):
+    def spawn_blade(self, pos, texture_idx):
         chunk_pos = (
             pos[0] // self.chunk_size,
             pos[1] // self.chunk_size
         )
 
-        chunk = self.chunks[self.chunk_id(chunk_pos)]
+        chunk = self.chunks.setdefault(self.chunk_id(chunk_pos), GrassChunk(self, chunk_pos))
+        chunk.spawn_blade(pos, texture_idx)
 
-        # find correct idx to insert (sorted by y coord)
-        idx = 0
-        while idx < len(chunk):
-            if chunk[idx]["pos"][1] > pos[1]:
-                break
+    def apply_force(self, pos, dist, force):
+        center_chunk_pos = (
+            pos[0] // self.chunk_size,
+            pos[1] // self.chunk_size
+        )
 
-            idx += 1
+        num_chunks = dist // self.chunk_size
 
-        chunk.insert({
-            "texture": texture,
-            "pos": pos,
-            "angle": 0
-        })
+        for dx in range(-num_chunks-1, num_chunks+2):
+            for dy in range(-num_chunks-1, num_chunks+2):
+                chunk_pos = (
+                    center_chunk_pos[0] + dx,
+                    center_chunk_pos[1] + dy,
+                )
+                chunk_id = self.chunk_id(chunk_pos)
+
+                if chunk_id in self.chunks:
+                    self.chunks[chunk_id].apply_force(pos, dist, force)
+
+    def prepare_update(self):
+        for chunk in self.chunks.values():
+            chunk.prepare_update()
 
     def update(self):
-        ...
+        # TODO: only update visible chunks
+
+        time = engine.get_time()
+
+        for chunk in self.chunks.values():
+            chunk.master_angle = math.sin(time * 1.3 + (chunk.pos[0] * self.chunk_size) / 80 + (chunk.pos[1] * self.chunk_size) / 40) * 10
+            chunk.update()
 
     def render(self):
         # TODO: only render visible chunks
 
-        for chunk in self.chunks:
-            for blade in chunk:
-                engine.draw_texture(blade["texture"], blade["pos"][0], blade["pos"][1], engine.WHITE)
+        for chunk in self.chunks.values():
+            chunk.render()
+
+class GrassChunk:
+    def __init__(self, manager, pos):
+        self.manager = manager
+        self.assets = manager.assets
+
+        self.pos = pos
+
+        self.blades = []
+        self.master_angle = 0
+
+    def spawn_blade(self, pos, texture_idx):
+        # find correct idx to insert (sorted by y coord)
+        idx = 0
+        while idx < len(self.blades):
+            if self.blades[idx]["pos"][1] > pos[1]:
+                break
+
+            idx += 1
+
+        self.blades.insert(idx, {
+            "texture": texture_idx,
+            "pos": pos,
+            "angle": 0,
+            "target_angle": 0
+        })
+
+    def prepare_update(self):
+        for blade in self.blades:
+            blade["target_angle"] = 0
+
+    def apply_force(self, pos, dist, force):
+        for blade in self.blades:
+            dist_to_pos = engine.vector2_distance(
+                (0, 0),
+                (
+                    abs(blade["pos"][0] - pos[0]),
+                    abs((blade["pos"][1] - pos[1]) ** 1.4)
+                )
+            )
+
+            blade_force = 1 - (dist_to_pos / dist) ** 0.8
+            blade_force = max(0, blade_force)
+
+            mult = (1 if blade["pos"][0] > pos[0] else -1)
+            blade["target_angle"] += blade_force * force * mult
+
+    def update(self):
+        delta = engine.get_frame_time()
+
+        for blade in self.blades:
+            blade["angle"] += (blade["target_angle"] - blade["angle"]) * delta * 5
+
+    def render(self):
+        for blade in self.blades:
+            texture = self.assets.get(blade["texture"])
+            engine.draw_texture_pro(
+                texture["texture"],
+                (0, 0, texture["texture"].width, texture["texture"].height),
+                (blade["pos"][0], blade["pos"][1], texture["texture"].width, texture["texture"].height),
+                texture["origin"],
+                self.master_angle + blade["angle"],
+                engine.WHITE
+            )
+
+class GrassAssets:
+    def __init__(self):
+        self.textures: list[dict] = []
+
+    def get(self, idx) -> dict:
+        return self.textures[idx]
+
+    def add_image(self, textures, origin=None, use_center_as_origin=None):
+        if type(textures) == engine.Texture:
+            if use_center_as_origin:
+                origin = (
+                    int(textures.width / 2),
+                    int(textures.height / 2),
+                )
+
+            self.textures.append({
+                "texture": textures,
+                "origin": origin
+            })
+        else:
+            for texture in textures:
+                if use_center_as_origin:
+                    origin = (
+                        int(texture.width / 2),
+                        int(texture.height / 2),
+                    )
+
+                self.textures.append({
+                    "texture": texture,
+                    "origin": origin
+                })

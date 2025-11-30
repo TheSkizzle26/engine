@@ -61,8 +61,11 @@ class Assets:
             )
         ]
 
+        # currently doesn't support different extensions for each file
+        extension = os.listdir(full_path)[0].split(".")[-1]
+
         for file in file_names:
-            textures.append(self.load_texture(f"{path}/{file}"))
+            textures.append(self.load_texture(f"{path}/{file}.{extension}"))
 
         return textures
 

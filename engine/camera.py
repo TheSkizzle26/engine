@@ -1,8 +1,10 @@
 import engine
 
 
-class Camera:
+class Camera(engine.ElementSingleton):
     def __init__(self, pos, zoom, speed):
+        super().__init__()
+
         self._pos = list(pos)
         self._target_pos = pos
         self._zoom = zoom
