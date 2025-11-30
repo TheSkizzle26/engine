@@ -20,6 +20,12 @@ class Camera(engine.ElementSingleton):
     def set_target_pos(self, pos):
         self._target_pos = pos
 
+    def move_target(self, offset):
+        self._target_pos = (
+            self._target_pos[0] + offset[0],
+            self._target_pos[1] + offset[1],
+        )
+
     def set_zoom(self, zoom):
         self._zoom = zoom
         self._target_zoom = zoom
@@ -30,10 +36,16 @@ class Camera(engine.ElementSingleton):
     def set_speed(self, speed):
         self._speed = speed
 
-    def move_target(self, offset):
-        self._target_pos = (
-            self._target_pos[0] + offset[0],
-            self._target_pos[1] + offset[1],
+    def get_world_pos(self):
+        return (
+            self._pos[0],
+            self._pos[1]
+        )
+
+    def get_world_topleft(self):
+        return (
+            (self._pos[0] - engine.data.internal_size[0]*0.5 / self._zoom),
+            (self._pos[1] - engine.data.internal_size[1]*0.5 / self._zoom)
         )
 
     def update(self):

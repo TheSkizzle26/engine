@@ -20,7 +20,7 @@ class Main(engine.Program):
 
         self.grass = engine.GrassManager(grass_assets)
 
-        num = (35, 6)
+        num = (350, 6)
         print(num[0] * num[1], "blades of grass")
 
         for x in range(-num[0]//2, num[0]//2+1):
@@ -62,9 +62,10 @@ class Main(engine.Program):
         self.grass.prepare_update()
 
         m_pos = engine.get_mouse_pos()
+        c_pos = self.camera.get_world_topleft()
         world_pos = (
-            (m_pos[0] - 400) / 4,
-            (m_pos[1] - 300) / 4,
+            c_pos[0] + m_pos[0] / 4,
+            c_pos[1] + m_pos[1] / 4
         )
         self.grass.apply_force(world_pos, 35, 70)
         self.grass.update()
