@@ -17,10 +17,11 @@ class Main(engine.Program):
 
         grass_assets = engine.GrassAssets()
         grass_assets.add_image(engine.assets.load_texture_group("grass"), use_center_as_origin=True)
+        grass_assets.calculate_atlas()
 
         self.grass = engine.GrassManager(grass_assets)
 
-        num = (3500, 60)
+        num = (350, 60)
         print(num[0] * num[1], "blades of grass")
 
         for x in range(-num[0]//2, num[0]//2+1):

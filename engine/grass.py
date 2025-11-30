@@ -171,12 +171,14 @@ class GrassChunk:
 
     def render(self):
         for blade in self.blades:
-            texture = self.assets.get(blade["texture"])
+            texture_x = self.assets.get_texture_atlas_x(blade["texture"])
+            texture_size = self.assets.get_texture_atlas_size(blade["texture"])
+            texture_origin = self.assets.get_texture_origin(blade["texture"])
             engine.draw_texture_pro(
-                texture["texture"],
-                (0, 0, texture["texture"].width, texture["texture"].height),
-                (blade["pos"][0], blade["pos"][1], texture["texture"].width, texture["texture"].height),
-                texture["origin"],
+                self.assets.get_atlas().texture,
+                (texture_x, 0, texture_size[0], -texture_size[1]),
+                (blade["pos"][0], blade["pos"][1], texture_size[0], texture_size[1]),
+                texture_origin,
                 self.master_angle + blade["angle"],
                 engine.WHITE
             )
@@ -184,9 +186,22 @@ class GrassChunk:
 class GrassAssets:
     def __init__(self):
         self.textures: list[dict] = []
+        self.atlas = None
 
-    def get(self, idx) -> dict:
-        return self.textures[idx]
+    def get_atlas(self):
+        return self.atlas
+
+    def get_texture_atlas_x(self, idx):
+        return self.textures[idx]["atlas_x"]
+
+    def get_texture_atlas_size(self, idx):
+        return (
+            self.textures[idx]["texture"].width,
+            self.textures[idx]["texture"].height,
+        )
+
+    def get_texture_origin(self, idx):
+        return self.textures[idx]["origin"]
 
     def add_image(self, textures, origin=None, use_center_as_origin=None):
         if type(textures) == engine.Texture:
@@ -210,5 +225,29 @@ class GrassAssets:
 
                 self.textures.append({
                     "texture": texture,
-                    "origin": origin
+                    "origin": origin,
+                    "atlas_x": 0
                 })
+
+    def calculate_atlas(self):
+        total_width = 0
+        total_height = 0
+
+        for texture in self.textures:
+            total_width += texture["texture"].width
+            total_height = texture["texture"].height if texture["texture"].height > total_height else total_height
+
+        atlas = engine.load_render_texture(total_width, total_height)
+
+        current_x = 0
+        for texture in self.textures:
+            engine.begin_texture_mode(atlas)
+
+            engine.draw_texture(texture["texture"], current_x, 0, engine.WHITE)
+
+            engine.end_texture_mode()
+
+            texture["atlas_x"] = current_x
+            current_x += texture["texture"].width
+
+        self.atlas = atlas
