@@ -13,18 +13,20 @@ class Main(engine.Program):
             input_map_path="assets/input_map.json"
         )
 
-        self.camera = engine.Camera((0, 0), 4, 5)
+        self.camera = engine.Camera((0, 0), 1, 5)
 
         grass_assets = engine.GrassAssets()
         grass_assets.add_image(engine.assets.load_texture_group("grass"), use_center_as_origin=True)
 
         self.grass = engine.GrassManager(grass_assets)
 
-        num = (350, 6)
+        num = (3500, 60)
         print(num[0] * num[1], "blades of grass")
 
         for x in range(-num[0]//2, num[0]//2+1):
             for y in range(-num[1]//2, num[1]//2+1):
+                if random.random() > 1: continue
+
                 texture_ids = [i for i in range(6)]
                 chosen_ids = [texture_ids.pop(random.randint(0, len(texture_ids)-1)) for i in range(3)]
 
@@ -64,8 +66,8 @@ class Main(engine.Program):
         m_pos = engine.get_mouse_pos()
         c_pos = self.camera.get_world_topleft()
         world_pos = (
-            c_pos[0] + m_pos[0] / 4,
-            c_pos[1] + m_pos[1] / 4
+            c_pos[0] + m_pos[0] / self.camera._zoom,
+            c_pos[1] + m_pos[1] / self.camera._zoom
         )
         self.grass.apply_force(world_pos, 35, 70)
         self.grass.update()

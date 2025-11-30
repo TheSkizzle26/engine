@@ -48,6 +48,12 @@ class Camera(engine.ElementSingleton):
             (self._pos[1] - engine.data.internal_size[1]*0.5 / self._zoom)
         )
 
+    def get_world_size(self):
+        return (
+            engine.data.internal_size[0] / self._zoom,
+            engine.data.internal_size[1] / self._zoom
+        )
+
     def update(self):
         delta = engine.get_frame_time()
 

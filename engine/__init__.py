@@ -17,7 +17,7 @@ from engine.input import input
 from engine.mouse import get_mouse_pos, get_internal_mouse_pos, get_internal_mouse_x, get_internal_mouse_y
 from engine.event_bus import event
 from engine.sound import play_sound_ex
-from engine.elements import Element, ElementSingleton, Elements
+from engine.elements import Element, ElementSingleton, Elements, elems
 from engine.entities import Entity, EntitySingleton
 from engine.scene import scene, Scene
 from engine.camera import Camera
