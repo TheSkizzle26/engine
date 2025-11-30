@@ -10,6 +10,7 @@ Current functionality implemented:
     - asset loading
     - input mapping
     - event system
+    - interactive foliage
     - utility functions
     - log system (can be rendered)
     - rectangle collision detection
@@ -17,9 +18,7 @@ Current functionality implemented:
 ToDo:
     - entity states
     - tilemap class
-    - interactive grass
     - ui classes
-    - check if camera zoom functions correctly
     - maybe debug functionality?
     - maybe add documentation
 

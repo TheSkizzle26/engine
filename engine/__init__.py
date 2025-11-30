@@ -21,7 +21,7 @@ from engine.elements import Element, ElementSingleton, Elements, elems
 from engine.entities import Entity, EntitySingleton
 from engine.scene import scene, Scene
 from engine.camera import Camera
-from engine.grass import GrassManager, GrassAssets
+from engine.foliage import FoliageManager, FoliageAssets
 from engine.logs import log, LogType
 from engine.game import Program, init
 

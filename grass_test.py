@@ -15,38 +15,14 @@ class Main(engine.Program):
 
         self.camera = engine.Camera((0, 0), 4, 5)
 
-        grass_assets = engine.GrassAssets()
+        grass_assets = engine.FoliageAssets()
         grass_assets.add_image(engine.assets.load_texture_group("grass"), use_center_as_origin=True)
 
-        self.grass = engine.GrassManager(
+        self.grass = engine.FoliageManager(
             grass_assets,
             adaptivity=15,
             wind_force=30
         )
-
-        '''num = (350, 60)
-        print(num[0] * num[1], "blades of grass")
-
-        for x in range(-num[0]//2, num[0]//2+1):
-            for y in range(-num[1]//2, num[1]//2+1):
-                if random.random() > 1: continue
-
-                texture_ids = [i for i in range(6)]
-                chosen_ids = [texture_ids.pop(random.randint(0, len(texture_ids)-1)) for i in range(6)]
-
-                offset = (
-                    random.randint(-3, 3),
-                    random.randint(-7, 7),
-                )
-
-                for idx in chosen_ids:
-                    self.grass.spawn_blade(
-                        (
-                            x*5*0.9 + offset[0],
-                            y*19*0.9 + offset[1]
-                        ),
-                        idx
-                    )'''
 
         engine.hide_cursor()
 
@@ -102,7 +78,7 @@ class Main(engine.Program):
                     pos[1] + random.random() * random_offset - random_offset/2,
                 )
 
-                self.grass.spawn_blade(blade_pos, random.randint(0, 5))
+                self.grass.spawn_object(blade_pos, random.randint(0, 5))
 
                 self.num_blades += 1
 
