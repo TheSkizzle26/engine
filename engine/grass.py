@@ -14,8 +14,11 @@ angle is 0 facing top
 
 
 class GrassManager:
-    def __init__(self, grass_assets: "GrassAssets", chunk_size=16):
+    def __init__(self, grass_assets: "GrassAssets", chunk_size=16, adaptivity=5, wind_force=10, wind_speed=1.3):
         self.assets = grass_assets
+        self.adaptivity = adaptivity
+        self.wind_force = wind_force
+        self.wind_speed = wind_speed
 
         self.chunks = {}
         self.chunk_size = chunk_size
@@ -70,10 +73,10 @@ class GrassManager:
             camera_topleft[1] // self.chunk_size
         )
 
-        for cx in range(int(topleft_chunk_pos[0] - 1),
-                        int(topleft_chunk_pos[0] + camera_size[0]//self.chunk_size + 2)):
-            for cy in range(int(topleft_chunk_pos[1] - 1),
-                            int(topleft_chunk_pos[1] + camera_size[1]//self.chunk_size + 4)):
+        for cy in range(int(topleft_chunk_pos[1] - 1),
+                        int(topleft_chunk_pos[1] + camera_size[1]//self.chunk_size + 4)):
+            for cx in range(int(topleft_chunk_pos[0] - 1),
+                            int(topleft_chunk_pos[0] + camera_size[0]//self.chunk_size + 2)):
                 chunk_id = self.chunk_id((cx, cy))
 
                 if chunk_id in self.chunks:
@@ -84,16 +87,8 @@ class GrassManager:
     def update(self):
         time = engine.get_time()
 
-        camera_topleft = engine.elems["Camera"].get_world_topleft()
-        camera_size = engine.elems["Camera"].get_world_size()
-
-        topleft_chunk_pos = (
-            camera_topleft[0] // self.chunk_size,
-            camera_topleft[1] // self.chunk_size
-        )
-
         for chunk in self.visible_chunks:
-            chunk.master_angle = math.sin(time * 1.3 + (chunk.pos[0] * self.chunk_size) / 80 + (chunk.pos[1] * self.chunk_size) / 40) * 10
+            chunk.master_angle = math.sin(time * self.wind_speed + (chunk.pos[0] * self.chunk_size) / 80 + (chunk.pos[1] * self.chunk_size) / 40) * self.wind_force
             chunk.calculate_forces()
             chunk.update()
 
@@ -105,6 +100,7 @@ class GrassChunk:
     def __init__(self, manager, pos):
         self.manager = manager
         self.assets = manager.assets
+        self.adaptivity = manager.adaptivity
 
         self.pos = pos
 
@@ -167,7 +163,7 @@ class GrassChunk:
         delta = engine.get_frame_time()
 
         for blade in self.blades:
-            blade["angle"] += (blade["target_angle"] - blade["angle"]) * delta * 5
+            blade["angle"] += (blade["target_angle"] - blade["angle"]) * delta * self.adaptivity
 
     def render(self):
         for blade in self.blades:

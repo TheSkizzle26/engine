@@ -26,8 +26,8 @@ class Assets:
 
     @staticmethod
     def hash(item):
-        random.seed(item)
-        return int.from_bytes(random.randbytes(4))
+        r = random.Random(item)
+        return int.from_bytes(r.randbytes(4))
 
     def set_texture_path(self, path):
         self.texture_path = path + ("" if path.endswith("/") else "/")
