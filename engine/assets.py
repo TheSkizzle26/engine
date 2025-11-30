@@ -57,11 +57,9 @@ class Assets:
 
         file_names = [ # should sort the file names by number
             str(i) for i in sorted(
-                [int(f[:f[::-1].index(".")]) for f in os.listdir(full_path)]
+                [int(f[:(len(f)-1) - f[::-1].index(".")]) for f in os.listdir(full_path)]
             )
         ]
-
-        print(file_names)
 
         for file in file_names:
             textures.append(self.load_texture(f"{path}/{file}"))
