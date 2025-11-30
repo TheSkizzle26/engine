@@ -27,6 +27,7 @@ class GrassManager:
 
         chunk = self.chunks[self.chunk_id(chunk_pos)]
 
+        # find correct idx to insert (sorted by y coord)
         idx = 0
         while idx < len(chunk):
             if chunk[idx]["pos"][1] > pos[1]:

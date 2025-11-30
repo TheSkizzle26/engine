@@ -17,12 +17,18 @@ class Main(engine.Program):
         if engine.input.is_pressed("quit"):
             self.quit()
 
-        movement = (
-            (engine.input.is_down("right") - engine.input.is_down("left")),
-            (engine.input.is_down("down") - engine.input.is_down("up"))
-        )
+        #movement = (
+        #    (engine.input.is_down("right") - engine.input.is_down("left")),
+        #    (engine.input.is_down("down") - engine.input.is_down("up"))
+        #)
+        #self.camera.move_target(movement)
+        #self.camera.update()
+        #self.camera.set_zoom(10)
 
-        self.camera.move_target(movement)
+        delta = engine.get_frame_time()
+
+        self.camera.move_target((0, -delta*10))
+        self.camera.set_zoom(self.camera._zoom * 1.0001)
 
         self.camera.update()
 

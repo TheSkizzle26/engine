@@ -19,6 +19,7 @@ ToDo:
     - tilemap class
     - interactive grass
     - ui classes
+    - check if camera zoom functions correctly
     - maybe debug functionality?
     - maybe add documentation
 
