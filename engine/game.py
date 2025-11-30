@@ -6,6 +6,7 @@ def init(size, title, target_fps=0, flags=0, monitor=0,
          image_path="", audio_path="",
          input_map_path="",
          internal_size=None):
+    engine.set_trace_log_level(engine.TraceLogLevel.LOG_ERROR)
     engine.set_config_flags(flags)
     engine.init_window(size[0], size[1], title)
     engine.set_window_monitor(monitor)

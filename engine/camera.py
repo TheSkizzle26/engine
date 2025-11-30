@@ -28,6 +28,12 @@ class Camera:
     def set_speed(self, speed):
         self._speed = speed
 
+    def move_target(self, offset):
+        self._target_pos = (
+            self._target_pos[0] + offset[0],
+            self._target_pos[1] + offset[1],
+        )
+
     def update(self):
         delta = engine.get_frame_time()
 
@@ -36,7 +42,7 @@ class Camera:
         self._zoom += (self._target_zoom - self._zoom) * self._speed * delta
 
     def begin(self):
-        self._camera.offset = engine.Vector2(*self._pos)
+        self._camera.offset = engine.Vector2(-self._pos[0], -self._pos[1])
         self._camera.zoom = self._zoom
 
         engine.begin_mode_2d(self._camera)
@@ -44,6 +50,3 @@ class Camera:
     @staticmethod
     def end():
         engine.end_mode_2d()
-
-
-camera = Camera((0, 0), 1, 1)
