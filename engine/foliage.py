@@ -1,24 +1,17 @@
 import math
+import time
 
 import engine
 
-"""
-chunk syntax:
-
-{
-    {"texture": ..., "pos": (x, y), "angle": radians}
-}
-
-angle is 0 facing top
-"""
-
 
 class FoliageManager:
-    def __init__(self, foliage_assets: "FoliageAssets", chunk_size=16, adaptivity=5, wind_force=10, wind_speed=1.3):
+    def __init__(self, foliage_assets: "FoliageAssets", chunk_size=16, adaptivity=5, wind_force=10, wind_speed=1.3, shadows=True):
         self.assets = foliage_assets
         self.adaptivity = adaptivity
         self.wind_force = wind_force
         self.wind_speed = wind_speed
+
+        self.render_shadows = shadows
 
         self.chunks = {}
         self.chunk_size = chunk_size
@@ -57,6 +50,7 @@ class FoliageManager:
                     self.chunks[chunk_id].apply_force(pos, dist, force)
 
     def prepare_update(self):
+        start = time.time()
         self.visible_chunks = self.get_visible_chunks()
 
         for chunk in self.visible_chunks:
@@ -93,6 +87,9 @@ class FoliageManager:
             chunk.update()
 
     def render(self):
+        if self.render_shadows:
+            for chunk in self.visible_chunks:
+                chunk.render_shadows()
         for chunk in self.visible_chunks:
             chunk.render()
 
@@ -165,46 +162,106 @@ class FoliageChunk:
         for blade in self.objects:
             blade["angle"] += (blade["target_angle"] - blade["angle"]) * delta * self.adaptivity
 
+    def render_shadows(self):
+        for object in self.objects:
+            shadow = self.assets.shadow.texture
+            engine.draw_texture(
+                shadow,
+                int(object["pos"][0] - shadow.width / 2),
+                int(object["pos"][1] - shadow.height / 2),
+                engine.WHITE
+            )
+
     def render(self):
-        for objects in self.objects:
-            texture = self.assets.get(objects["texture"])
+        for object in self.objects:
+            texture = self.assets.textures[object["texture"]]
+
             engine.draw_texture_pro(
                 texture["texture"],
                 (0, 0, texture["texture"].width, texture["texture"].height),
-                (objects["pos"][0], objects["pos"][1], texture["texture"].width, texture["texture"].height),
+                (object["pos"][0], object["pos"][1], texture["texture"].width, texture["texture"].height),
                 texture["origin"],
-                self.master_angle + objects["angle"],
+                self.master_angle + object["angle"],
                 engine.WHITE
             )
 
 class FoliageAssets:
-    def __init__(self):
+    def __init__(self, compute_ao=True):
         self.textures: list[dict] = []
+        self.shadow = engine.load_render_texture(32, 16)
+        self.grass_shader = engine.load_shader("", "engine/assets/grass.frag")
+        engine.set_texture_filter(self.shadow.texture, engine.TextureFilter.TEXTURE_FILTER_BILINEAR)
+
+        self.compute_ao = compute_ao
+
+        self.calculate_shadow()
 
     def get(self, idx) -> dict:
         return self.textures[idx]
 
+    def get_shadow(self):
+        return self.shadow.texture
+
+    def get_grass_shader(self):
+        return self.grass_shader
+
+    def calculate_shadow(self):
+        temp = engine.load_render_texture(self.shadow.texture.width, self.shadow.texture.height)
+        shader = engine.load_shader("", "engine/assets/shadow.frag")
+        width = self.shadow.texture.width
+        height = self.shadow.texture.height
+
+        engine.begin_texture_mode(temp)
+        engine.draw_rectangle(0, 0, width, height, engine.WHITE)
+        engine.end_texture_mode()
+
+        engine.begin_texture_mode(self.shadow)
+        engine.begin_shader_mode(shader)
+        engine.draw_texture(temp.texture, 0, 0, engine.WHITE)
+        engine.end_shader_mode()
+        engine.end_texture_mode()
+
+        engine.unload_render_texture(temp)
+        engine.unload_shader(shader)
+
+    def _add_single_image(self, texture, origin=None, use_center_as_origin=None):
+        if use_center_as_origin:
+            origin = (
+                int(texture.width / 2),
+                int(texture.height / 2),
+            )
+
+        temp = engine.load_render_texture(texture.width, texture.height)
+
+        engine.begin_texture_mode(temp)
+        engine.clear_background(engine.BLANK)
+        if self.compute_ao: engine.begin_shader_mode(self.grass_shader)
+
+        engine.draw_texture_rec(
+            texture,
+            (0, 0, texture.width, -texture.height),
+            (0, 0),
+            engine.WHITE
+        )
+
+        if self.compute_ao: engine.end_shader_mode()
+        engine.end_texture_mode()
+
+        image = engine.load_image_from_texture(temp.texture)
+        new_texture = engine.load_texture_from_image(image)
+
+        engine.unload_image(image)
+        engine.unload_render_texture(temp)
+        engine.unload_texture(texture)
+
+        self.textures.append({
+            "texture": new_texture,
+            "origin": origin
+        })
+
     def add_image(self, textures, origin=None, use_center_as_origin=None):
         if type(textures) == engine.Texture:
-            if use_center_as_origin:
-                origin = (
-                    int(textures.width / 2),
-                    int(textures.height / 2),
-                )
-
-            self.textures.append({
-                "texture": textures,
-                "origin": origin
-            })
+            self._add_single_image(textures, origin, use_center_as_origin)
         else:
             for texture in textures:
-                if use_center_as_origin:
-                    origin = (
-                        int(texture.width / 2),
-                        int(texture.height / 2),
-                    )
-
-                self.textures.append({
-                    "texture": texture,
-                    "origin": origin
-                })
+                self._add_single_image(texture, origin, use_center_as_origin)

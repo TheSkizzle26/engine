@@ -1,5 +1,6 @@
 import random
 import engine
+from timeit import timeit
 
 
 class Main(engine.Program):
@@ -21,8 +22,16 @@ class Main(engine.Program):
         self.grass = engine.FoliageManager(
             grass_assets,
             adaptivity=15,
-            wind_force=30
+            wind_force=30,
+            shadows=True
         )
+
+        self.num_blades = 0
+
+        for x in range(-20, 21):
+            for y in range(-20, 21):
+                self.grass.spawn_object((x*5, y*5), random.randint(0, 5))
+                self.num_blades += 1
 
         engine.hide_cursor()
 
@@ -31,11 +40,12 @@ class Main(engine.Program):
         self.last_mouse_world_pos = [0, 0]
         self.cursor_movement = 0
 
-        self.num_blades = 0
-
     def update(self):
         if engine.input.is_pressed("quit"):
             self.quit()
+
+        if engine.is_key_pressed(engine.KeyboardKey.KEY_E):
+            self.mode = 1 - self.mode
 
         self.cursor_size += int(engine.get_mouse_wheel_move()*3)
 
