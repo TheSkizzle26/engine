@@ -90,8 +90,17 @@ class FoliageManager:
         if self.render_shadows:
             for chunk in self.visible_chunks:
                 chunk.render_shadows()
+
+        groups = {}
+
         for chunk in self.visible_chunks:
-            chunk.render()
+            chunk_groups = chunk.get_render_groups()
+            for group in chunk_groups.items():
+                groups.setdefault(group[0], []).append([chunk, group[1]])
+
+        for chunk_groups in groups.values():
+            for group in chunk_groups:
+                group[0].render_group(group[1])
 
 class FoliageChunk:
     def __init__(self, manager, pos):
@@ -172,8 +181,17 @@ class FoliageChunk:
                 engine.WHITE
             )
 
-    def render(self):
+    def get_render_groups(self):
+        groups = {}
+
         for object in self.objects:
+            texture = object["texture"]
+            groups.setdefault(texture, []).append(object)
+
+        return groups
+
+    def render_group(self, group):
+        for object in group:
             texture = self.assets.textures[object["texture"]]
 
             engine.draw_texture_pro(
