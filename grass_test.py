@@ -28,10 +28,10 @@ class Main(engine.Program):
 
         self.num_blades = 0
 
-        for x in range(-20, 21):
-            for y in range(-20, 21):
-                self.grass.spawn_object((x*5, y*5), random.randint(0, 5))
-                self.num_blades += 1
+        #for x in range(-20, 21):
+        #    for y in range(-20, 21):
+        #        self.grass.spawn_object((x*5, y*5), random.randint(0, 5))
+        #        self.num_blades += 1
 
         engine.hide_cursor()
 
@@ -105,6 +105,7 @@ class Main(engine.Program):
 
         self.camera.begin()
         self.grass.render()
+        engine.draw_circle(0, 0, 1, engine.WHITE)
         self.camera.end()
 
         engine.draw_text(f"{self.num_blades} blades", 6, 0, 60, engine.WHITE)
@@ -116,6 +117,7 @@ class Main(engine.Program):
             engine.get_mouse_y() - texture.height/2*self.cursor_size/3
         )
         engine.draw_texture_ex(texture, cursor_pos, 0, self.cursor_size/3, engine.WHITE)
+
 
         engine.end_drawing()
 
