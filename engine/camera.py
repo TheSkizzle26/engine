@@ -54,6 +54,15 @@ class Camera(engine.ElementSingleton):
             engine.data.internal_size[1] / self._zoom
         )
 
+    def get_raylib_pos(self):
+        return engine.Vector2(
+            -self._pos[0] * self._zoom + engine.data.internal_size[0] * 0.5,
+            -self._pos[1] * self._zoom + engine.data.internal_size[1] * 0.5
+        )
+
+    def get_raylib_zoom(self):
+        return self._zoom
+
     def update(self):
         delta = engine.get_frame_time()
 
@@ -62,11 +71,8 @@ class Camera(engine.ElementSingleton):
         self._zoom += (self._target_zoom - self._zoom) * self._speed * delta
 
     def begin(self):
-        self._camera.offset = engine.Vector2(
-            -self._pos[0] * self._zoom + engine.data.internal_size[0]*0.5,
-            -self._pos[1] * self._zoom + engine.data.internal_size[1]*0.5
-        )
-        self._camera.zoom = self._zoom
+        self._camera.offset = self.get_raylib_pos()
+        self._camera.zoom = self.get_raylib_zoom()
 
         engine.begin_mode_2d(self._camera)
 

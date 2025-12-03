@@ -1,6 +1,5 @@
 import random
 import engine
-from timeit import timeit
 
 
 class Main(engine.Program):
