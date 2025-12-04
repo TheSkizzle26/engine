@@ -37,8 +37,8 @@ void main() {
     Object cur = objects[gl_InstanceID];
     TextureData texture = texture_data[0];
 
-    float width = camera_scale * (texture.size.x / RES.x);
-    float height = camera_scale * (texture.size.y / RES.y);
+    vec2 pos = (camera_scale * 2 * cur.pos) / RES * vec2(1, -1);
+    vec2 size = (camera_scale * 2 * texture.size) / RES;
 
-    gl_Position = vec4(in_vert * vec2(width, height), 0.0, 1.0);
+    gl_Position = vec4(pos + in_vert * size, 0.0, 1.0);
 }

@@ -26,7 +26,7 @@ layout(std430, binding=1) buffer TextureDataBuffer {
 };
 
 uniform sampler2D atlas;
-uniform float atlas_width;
+uniform vec2 atlas_size;
 
 
 void main() {
@@ -34,14 +34,11 @@ void main() {
     TextureData tex = texture_data[cur.texture_idx];
 
     vec2 pos = vec2(
-            tex.atlas_x / atlas_width,
-            1.0
+            float(tex.atlas_x) / atlas_size.x,
+            0.0
     );
 
-    vec2 size = vec2(
-            tex.size.x / atlas_width,
-            1.0
-    );
+    vec2 size = tex.size / atlas_size;
 
     f_color = texture(atlas, pos + uv * size);
 }

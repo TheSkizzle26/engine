@@ -38,8 +38,8 @@ class HWFoliageManager:
         self.assets.upload_gpu_atlas()
         self.assets.upload_gpu_texture_data()
 
-        self.spawn_object((10, 0), 0)
-        #self.spawn_object((30, 10), 2)
+        self.spawn_object((10, 0), 1)
+        self.spawn_object((30, 10), 2)
 
     def load_program(self, vert_path, frag_path):
         with open(vert_path, "r") as file:
@@ -94,7 +94,7 @@ class HWFoliageManager:
         self.program["RES"] = engine.data.internal_size
         #self.program["camera_pos"] = engine.vector2_to_list(engine.elems["Camera"].get_raylib_pos())
         self.program["camera_scale"] = engine.elems["Camera"].get_raylib_zoom()
-        self.program["atlas_width"] = self.assets.get_atlas_width()
+        self.program["atlas_size"] = self.assets.get_atlas_size()
 
     def spawn_object(self, pos, texture_idx):
         # find correct idx to insert (sorted by y coord)
@@ -153,12 +153,12 @@ class HWFoliageAssets:
 
         self.textures = []
         self.gpu_atlas = None
-        self.atlas_width = 0
+        self.atlas_size = None
 
         self.gpu_texture_data = None
 
-    def get_atlas_width(self):
-        return self.atlas_width
+    def get_atlas_size(self):
+        return self.atlas_size
 
     def use_atlas(self):
         self.gpu_atlas.use(0)
@@ -176,7 +176,7 @@ class HWFoliageAssets:
             if texture.height > final_height:
                 final_height = texture.height
 
-        self.atlas_width = final_width
+        self.atlas_size = (final_width, final_height)
 
         atlas = engine.load_render_texture(final_width, final_height)
         engine.begin_texture_mode(atlas)
