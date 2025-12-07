@@ -1,4 +1,6 @@
 import random
+import time
+
 import engine
 
 
@@ -104,7 +106,6 @@ class Main(engine.Program):
 
         self.camera.begin()
         self.grass.render()
-        engine.draw_circle(0, 0, 1, engine.WHITE)
         self.camera.end()
 
         engine.draw_text(f"{self.num_blades} blades", 6, 0, 60, engine.WHITE)
@@ -119,6 +120,18 @@ class Main(engine.Program):
 
 
         engine.end_drawing()
+
+    def timeit(self, func):
+        start_time = time.time()
+        func()
+        end_time = time.time()
+
+        print(func.__name__, "took", end_time-start_time, "seconds")
+
+    def run(self):
+        while True:
+            self.timeit(self.update)
+            self.timeit(self.render)
 
 
 if __name__ == "__main__":
