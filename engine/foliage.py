@@ -1,5 +1,8 @@
 import math
 import time
+
+import pyray
+
 import engine
 
 
@@ -49,7 +52,6 @@ class FoliageManager:
                     self.chunks[chunk_id].apply_force(pos, dist, force)
 
     def prepare_update(self):
-        start = time.time()
         self.visible_chunks = self.get_visible_chunks()
 
         for chunk in self.visible_chunks:
@@ -163,7 +165,7 @@ class FoliageChunk:
 
     def render_shadows(self):
         for object in self.objects:
-            shadow = self.assets.shadow.texture
+            shadow = self.assets.get_shadow()
             engine.draw_texture(
                 shadow,
                 int(object["pos"][0] - shadow.width / 2),
@@ -185,13 +187,15 @@ class FoliageChunk:
             )
 
 class FoliageAssets:
-    def __init__(self, compute_ao=True):
+    def __init__(self, compute_ao=True, shadow_size=(32, 16), shadow_darkness=0.55, custom_shadow_texture=None):
         self.textures: list[dict] = []
-        self.shadow = engine.load_render_texture(32, 16)
+        self.shadow = engine.load_render_texture(*shadow_size)
         self.grass_shader = engine.load_shader("", "engine/assets/grass.frag")
         engine.set_texture_filter(self.shadow.texture, engine.TextureFilter.TEXTURE_FILTER_BILINEAR)
 
         self.compute_ao = compute_ao
+        self.shadow_darkness = shadow_darkness
+        self.custom_shadow_texture = custom_shadow_texture
 
         self.calculate_shadow()
 
@@ -205,8 +209,14 @@ class FoliageAssets:
         return self.grass_shader
 
     def calculate_shadow(self):
+        if self.custom_shadow_texture: # not sure if this works
+            self.shadow.texture = self.custom_shadow_texture
+            return
+
         temp = engine.load_render_texture(self.shadow.texture.width, self.shadow.texture.height)
         shader = engine.load_shader("", "engine/assets/shadow.frag")
+        engine.set_shader_value(shader, 1, pyray.ffi.new("float *", self.shadow_darkness), engine.ShaderUniformDataType.SHADER_UNIFORM_FLOAT)
+
         width = self.shadow.texture.width
         height = self.shadow.texture.height
 

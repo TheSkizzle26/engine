@@ -115,7 +115,6 @@ class Main(engine.Program):
         )
         engine.draw_texture_ex(texture, cursor_pos, 0, self.cursor_size/3, engine.WHITE)
 
-
         engine.end_drawing()
 
 
