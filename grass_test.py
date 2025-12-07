@@ -45,9 +45,6 @@ class Main(engine.Program):
         if engine.input.is_pressed("quit"):
             self.quit()
 
-        if engine.is_key_pressed(engine.KeyboardKey.KEY_E):
-            self.mode = 1 - self.mode
-
         self.cursor_size += int(engine.get_mouse_wheel_move()*3)
 
         delta = engine.get_frame_time()
