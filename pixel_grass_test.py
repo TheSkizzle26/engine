@@ -29,7 +29,7 @@ class Main(engine.Program):
             self.grass_assets,
             adaptivity=15,
             wind_force=30,
-            shadows=True
+            shadows=False
         )
 
         self.cursor_size = 6
