@@ -121,18 +121,6 @@ class Main(engine.Program):
 
         engine.end_drawing()
 
-    def timeit(self, func):
-        start_time = time.time()
-        func()
-        end_time = time.time()
-
-        print(func.__name__, "took", end_time-start_time, "seconds")
-
-    def run(self):
-        while True:
-            self.timeit(self.update)
-            self.timeit(self.render)
-
 
 if __name__ == "__main__":
     Main().run()
