@@ -11,6 +11,7 @@ Current functionality implemented:
     - input mapping
     - event system
     - interactive foliage
+    - particles
     - utility functions
     - log system (can be rendered)
     - rectangle collision detection
