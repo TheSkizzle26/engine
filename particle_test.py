@@ -16,7 +16,7 @@ class Main(engine.Program):
 
         self.camera = engine.Camera((0, 0), 4, 1)
 
-        self.particle_texture = engine.assets.load_texture("particle.png")
+        self.particle_textures = engine.assets.load_texture_group("particles")
         self.particles = engine.ParticleManager()
 
         self.last_particle_time = 0
@@ -36,7 +36,7 @@ class Main(engine.Program):
             offset = 250
 
             self.particles.add_particle(Particle(
-                self.particle_texture,
+                random.choice(self.particle_textures),
                 m_pos,
                 velocity=(
                     random.random() * offset - offset/2,

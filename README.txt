@@ -20,6 +20,7 @@ ToDo:
     - entity states
     - tilemap class
     - ui classes
+    - extend/rewrite particles
     - maybe debug functionality?
     - maybe add documentation
 
