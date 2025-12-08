@@ -22,6 +22,7 @@ from engine.entities import Entity, EntitySingleton
 from engine.scene import scene, Scene
 from engine.camera import Camera
 from engine.foliage import FoliageManager, FoliageAssets
+from engine.particles import ParticleManager, Particle
 from engine.logs import log, LogType
 from engine.game import Program, init
 
