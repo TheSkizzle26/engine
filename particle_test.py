@@ -25,7 +25,7 @@ class Main(engine.Program):
         if engine.input.is_pressed("quit"):
             self.quit()
 
-        if engine.input.is_down("log") and engine.get_time() - self.last_particle_time >= 0.015:
+        if engine.input.is_down("log") and engine.get_time() - self.last_particle_time >= -0.015:
             self.last_particle_time = engine.get_time()
 
             m_pos = (
@@ -34,9 +34,10 @@ class Main(engine.Program):
             )
 
             offset = 250
+            p_type = random.randint(0, 1)
 
             self.particles.add_particle(Particle(
-                random.choice(self.particle_textures),
+                self.particle_textures[p_type],
                 m_pos,
                 velocity=(
                     random.random() * offset - offset/2,
@@ -44,7 +45,7 @@ class Main(engine.Program):
                 ),
                 gravity=(0, 100),
                 fade_expo=3
-            ))
+            ), -p_type)
 
         self.particles.update()
 

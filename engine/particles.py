@@ -5,7 +5,8 @@ class Particle(engine.Entity):
     def __init__(self, texture, pos,
                  velocity=(0, 0), drag=0.9,
                  gravity=(0, 20), bounce_mult=0.7,
-                 lifetime=2, fade=True, fade_expo=1):
+                 lifetime=2, fade=True,
+                 fade_expo=1, z=0):
         super().__init__(pos, (0, 0))
 
         self.texture = texture
@@ -20,6 +21,7 @@ class Particle(engine.Entity):
         self.fade = fade
         self.fade_expo = fade_expo
 
+        self.z = z
         self.collision_rects = []
 
         self.manager = None
@@ -80,7 +82,7 @@ class ParticleManager(engine.ElementSingleton):
     def __init__(self, chunk_size=32):
         super().__init__()
 
-        self.chunks = {}
+        self.z_groups = {}
         self.chunk_size = chunk_size
 
         self.num_particles = 0
@@ -88,31 +90,22 @@ class ParticleManager(engine.ElementSingleton):
     def chunk_id(self, chunk_pos):
         return f"{int(chunk_pos[0])};{int(chunk_pos[1])}"
 
-    def del_particle(self, particle: Particle):
+    def add_particle(self, particle: Particle, z=0):
         chunk_pos = (
             particle.pos[0] // self.chunk_size,
             particle.pos[1] // self.chunk_size
         )
 
-        self.chunks[self.chunk_id(chunk_pos)].remove(particle)
-
-    def add_particle(self, particle: Particle):
-        chunk_pos = (
-            particle.pos[0] // self.chunk_size,
-            particle.pos[1] // self.chunk_size
-        )
-
-        self.chunks.setdefault(self.chunk_id(chunk_pos), []).append(particle)
+        self.z_groups.setdefault(float(z), {}).setdefault(self.chunk_id(chunk_pos), []).append(particle)
         particle.set_manager(self)
 
-    def update(self):
+    def update_z_group(self, group_id):
         new_chunks = {}
-        num = 0
 
-        for chunk in self.chunks.values():
+        for chunk in self.z_groups[group_id].values():
             for particle in chunk:
                 if particle.is_dead():
-                    continue # delete it from new dict
+                    continue  # delete it from new dict
 
                 particle.update()
 
@@ -122,12 +115,15 @@ class ParticleManager(engine.ElementSingleton):
                 )
 
                 new_chunks.setdefault(self.chunk_id(chunk_pos), []).append(particle)
-                num += 1
 
-        self.chunks = new_chunks
+        self.z_groups[group_id] = new_chunks
+
+    def update(self):
+        for group_id in self.z_groups:
+            self.update_z_group(group_id)
 
     def get_visible_chunks(self):
-        chunks = []
+        groups = {}
 
         camera_topleft = engine.elems["Camera"].get_world_topleft()
         camera_size = engine.elems["Camera"].get_world_size()
@@ -143,12 +139,17 @@ class ParticleManager(engine.ElementSingleton):
                             int(topleft_chunk_pos[0] + camera_size[0]//self.chunk_size + 2)):
                 chunk_id = self.chunk_id((cx, cy))
 
-                if chunk_id in self.chunks:
-                    chunks.append(self.chunks[chunk_id])
+                for group_id in self.z_groups:
+                    if chunk_id in self.z_groups[group_id]:
+                        groups.setdefault(group_id, []).append(self.z_groups[group_id][chunk_id])
 
-        return chunks
+        return groups
 
     def render(self):
-        for chunk in self.get_visible_chunks():
-            for particle in chunk:
-                particle.render()
+        groups = self.get_visible_chunks()
+        group_ids = sorted(groups.keys())
+
+        for group_id in group_ids:
+            for chunk in groups[group_id]:
+                for particle in chunk:
+                    particle.render()
