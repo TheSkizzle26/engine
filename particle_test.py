@@ -25,7 +25,7 @@ class Main(engine.Program):
         if engine.input.is_pressed("quit"):
             self.quit()
 
-        if engine.input.is_down("log") and engine.get_time() - self.last_particle_time >= -0.015:
+        if engine.input.is_down("log") and engine.get_time() - self.last_particle_time >= 0.01:
             self.last_particle_time = engine.get_time()
 
             m_pos = (
