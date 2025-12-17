@@ -19,16 +19,17 @@ class Main(engine.Program):
 
         self.camera = engine.Camera((0, 0), 1, 2)
 
-        self.grass_assets = engine.FoliageAssets(
+        self.grass_assets = engine.CPUFoliageAssets(
             compute_ao=False,
             shadow_size=(24, 12),
             shadow_darkness=0.45,
         )
         self.grass_assets.add_image(engine.assets.load_texture_group("grass"), use_center_as_origin=True)
-        self.grass = engine.FoliageManager(
+        self.grass = engine.CPUFoliageManager(
             self.grass_assets,
             adaptivity=15,
-            wind_force=30,
+            wind_force=25,
+            wind_speed=2,
             shadows=False
         )
 

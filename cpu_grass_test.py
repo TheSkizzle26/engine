@@ -1,7 +1,7 @@
 import random
 import time
+
 import engine
-import moderngl
 
 
 class Main(engine.Program):
@@ -14,70 +14,25 @@ class Main(engine.Program):
             input_map_path="assets/input_map.json",
             flags=engine.ConfigFlags.FLAG_FULLSCREEN_MODE
         )
-        self.ctx = moderngl.create_context()
 
         self.camera = engine.Camera((0, 0), 4, 5)
 
-        grass_assets = engine.FoliageAssets(self.ctx)
-        for tex in engine.assets.load_texture_group("grass"):
-            grass_assets.add_texture(tex)
-        grass_assets.compute_gpu_data()
+        grass_assets = engine.CPUFoliageAssets()
+        grass_assets.add_image(engine.assets.load_texture_group("grass"), use_center_as_origin=True)
 
-        self.grass = engine.FoliageManager(
-            self.ctx,
+        self.grass = engine.CPUFoliageManager(
             grass_assets,
             adaptivity=15,
             wind_force=30,
-            render_shadows=True
+            shadows=True
         )
 
         self.num_blades = 0
 
-        # setup objects, just for testing
-        # size = (1550*2, 1300*2)
-        size = (200, 200)
-        print(size[0] * size[1])
-        offset = (6, 4)
-        # offset = (40, 40)
-        random_offset = (6, 3.5)
-        for x in range(-size[0] // 2, size[0] // 2):
-            for y in range(-size[1] // 2, size[1] // 2):
-                self.num_blades += 1
-                self.grass.spawn_object(
-                    (
-                        x * offset[0] + random.random() * random_offset[0] - random_offset[0] / 2,
-                        y * offset[1] + random.random() * random_offset[1] - random_offset[1] / 2
-                    ),
-                    random.randint(0, 5)
-                )
-
-            if x % 25 != 0:
-                continue
-
-            # render progress bar
-            engine.begin_drawing()
-
-            center = (engine.data.internal_size[0] // 2, engine.data.internal_size[1] // 2)
-            width = 500
-            height = 30
-
-            engine.draw_rectangle(
-                int(center[0] - width / 2),
-                int(center[1] - height / 2),
-                int(width * (x + size[0] // 2) / size[0]),
-                int(height),
-                engine.WHITE
-            )
-            engine.draw_rectangle_lines(
-                int(center[0] - width / 2),
-                int(center[1] - height / 2),
-                int(width),
-                int(height),
-                engine.WHITE
-            )
-
-            engine.end_drawing()
-        self.grass.compute_gpu_data()
+        #for x in range(-20, 21):
+        #    for y in range(-20, 21):
+        #        self.grass.spawn_object((x*5, y*5), random.randint(0, 5))
+        #        self.num_blades += 1
 
         engine.hide_cursor()
 
@@ -106,7 +61,7 @@ class Main(engine.Program):
         self.camera.move_target(movement)
         self.camera.update()
 
-        self.grass.clear_forces()
+        self.grass.prepare_update()
 
         m_pos = engine.get_mouse_pos()
         c_pos = self.camera.get_world_topleft()
@@ -115,7 +70,28 @@ class Main(engine.Program):
             c_pos[1] + m_pos[1] / self.camera._zoom
         )
 
-        self.grass.add_force(pos, self.cursor_size*3, 60)
+        self.cursor_movement += engine.vector2_distance(
+            pos,
+            self.last_mouse_world_pos
+        )
+
+        if engine.input.is_down("log") and self.cursor_movement > 7.5:
+            self.cursor_movement = 0
+
+            random_offset = self.cursor_size
+
+            for i in range(self.cursor_size // 6):
+                blade_pos = (
+                    pos[0] + random.random() * random_offset - random_offset/2,
+                    pos[1] + random.random() * random_offset - random_offset/2,
+                )
+
+                self.grass.spawn_object(blade_pos, random.randint(0, 5))
+
+                self.num_blades += 1
+
+        self.grass.apply_force(pos, self.cursor_size*3, 60)
+        self.grass.update()
 
         engine.set_window_title(f"FPS: {engine.get_fps()}")
 
@@ -126,7 +102,7 @@ class Main(engine.Program):
         engine.clear_background((23, 70, 36))
 
         self.camera.begin()
-        self.grass.update_and_render()
+        self.grass.render()
         self.camera.end()
 
         engine.draw_text(f"{self.num_blades} blades", 6, 0, 60, engine.WHITE)

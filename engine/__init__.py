@@ -7,6 +7,8 @@ to_exclude = ["Rectangle"]
 for name in to_exclude:
     del globals()[name]
 
+import engine.mgl
+
 from engine.deprecated import Rectangle#, Camera2D#, load_texture, load_sound
 from engine.utils import sign
 from engine.data import data
@@ -21,6 +23,7 @@ from engine.elements import Element, ElementSingleton, Elements, elems
 from engine.entities import Entity, EntitySingleton
 from engine.scene import scene, Scene
 from engine.camera import Camera
+from engine.cpu_foliage import CPUFoliageManager, CPUFoliageAssets
 from engine.foliage import FoliageManager, FoliageAssets
 from engine.particles import ParticleManager, Particle
 from engine.logs import log, LogType

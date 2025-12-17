@@ -1,276 +1,220 @@
 import math
-import time
-
-import pyray
-
+import moderngl
 import engine
+import numpy as np
 
 
 class FoliageManager:
-    def __init__(self, foliage_assets: "FoliageAssets", chunk_size=16, adaptivity=5, wind_force=10, wind_speed=1.3, shadows=True):
-        self.assets = foliage_assets
+    def __init__(self, ctx: moderngl.Context, assets: "FoliageAssets",
+                 adaptivity=5, wind_force=10,
+                 wind_speed=1.3, render_shadows=True,
+                 shadow_size=(32, 16), shadow_darkness=0.1,
+                 render_ao=True):
+        self.ctx = ctx
+        self.ctx.disable(self.ctx.CULL_FACE) # why do I feel like I'll regret this?
+
+        self.assets = assets
+
         self.adaptivity = adaptivity
         self.wind_force = wind_force
         self.wind_speed = wind_speed
 
-        self.render_shadows = shadows
+        self.render_shadows = render_shadows
+        self.shadow_size = shadow_size
+        self.shadow_darkness = shadow_darkness
 
-        self.chunks = {}
-        self.chunk_size = chunk_size
+        self.render_ao = render_ao
 
-        self.visible_chunks = []
-
-    def chunk_id(self, chunk_pos):
-        return f"{int(chunk_pos[0])};{int(chunk_pos[1])}"
-
-    def spawn_object(self, pos, texture_idx):
-        chunk_pos = (
-            pos[0] // self.chunk_size,
-            pos[1] // self.chunk_size
-        )
-
-        chunk = self.chunks.setdefault(self.chunk_id(chunk_pos), FoliageChunk(self, chunk_pos))
-        chunk.spawn_object(pos, texture_idx)
-
-    def apply_force(self, pos, dist, force):
-        center_chunk_pos = (
-            pos[0] // self.chunk_size,
-            pos[1] // self.chunk_size
-        )
-
-        num_chunks = dist // self.chunk_size
-
-        for dx in range(-num_chunks-1, num_chunks+2):
-            for dy in range(-num_chunks-1, num_chunks+2):
-                chunk_pos = (
-                    center_chunk_pos[0] + dx,
-                    center_chunk_pos[1] + dy,
-                )
-                chunk_id = self.chunk_id(chunk_pos)
-
-                if chunk_id in self.chunks:
-                    self.chunks[chunk_id].apply_force(pos, dist, force)
-
-    def prepare_update(self):
-        self.visible_chunks = self.get_visible_chunks()
-
-        for chunk in self.visible_chunks:
-            chunk.prepare_update()
-
-    def get_visible_chunks(self):
-        chunks = []
-
-        camera_topleft = engine.elems["Camera"].get_world_topleft()
-        camera_size = engine.elems["Camera"].get_world_size()
-
-        topleft_chunk_pos = (
-            camera_topleft[0] // self.chunk_size,
-            camera_topleft[1] // self.chunk_size
-        )
-
-        for cy in range(int(topleft_chunk_pos[1] - 1),
-                        int(topleft_chunk_pos[1] + camera_size[1]//self.chunk_size + 4)):
-            for cx in range(int(topleft_chunk_pos[0] - 1),
-                            int(topleft_chunk_pos[0] + camera_size[0]//self.chunk_size + 2)):
-                chunk_id = self.chunk_id((cx, cy))
-
-                if chunk_id in self.chunks:
-                    chunks.append(self.chunks[chunk_id])
-
-        return chunks
-
-    def update(self):
-        time = engine.get_time()
-
-        for chunk in self.visible_chunks:
-            chunk.master_angle = math.sin(time * self.wind_speed + (chunk.pos[0] * self.chunk_size) / 80 + (chunk.pos[1] * self.chunk_size) / 40) * self.wind_force
-            chunk.calculate_forces()
-            chunk.update()
-
-    def render(self):
-        if self.render_shadows:
-            for chunk in self.visible_chunks:
-                chunk.render_shadows()
-        for chunk in self.visible_chunks:
-            chunk.render()
-
-class FoliageChunk:
-    def __init__(self, manager, pos):
-        self.manager = manager
-        self.assets = manager.assets
-        self.adaptivity = manager.adaptivity
-
-        self.pos = pos
-
+        # objects
         self.objects = []
-        self.master_angle = 0
+        self.num_objects = 0
+        self.object_buffer = self.ctx.buffer(np.array([0], dtype=np.float32))
+        self.object_buffer.bind_to_storage_buffer(1)
 
         self.forces = []
+        self.num_forces = 0
+        self.force_buffer = self.ctx.buffer(np.array([0], dtype=np.float32))
+        self.force_buffer.bind_to_storage_buffer(2)
 
-    def spawn_object(self, pos, texture_idx):
-        # find correct idx to insert (sorted by y coord)
-        idx = 0
-        while idx < len(self.objects):
-            if self.objects[idx]["pos"][1] > pos[1]:
-                break
+        self.quad_buffer = self.ctx.buffer(np.array([
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1
+        ], dtype=np.float32))
 
-            idx += 1
+        self.grass_prog = engine.mgl.load_program(self.ctx, "engine/assets/foliage/grass.vert", "engine/assets/foliage/grass.frag")
+        self.grass_vao = self.ctx.vertex_array(
+            self.grass_prog,
+            [
+                (self.quad_buffer, "2f", "in_vert")
+            ]
+        )
+        self.shadow_prog = engine.mgl.load_program(self.ctx, "engine/assets/foliage/shadow.vert", "engine/assets/foliage/shadow.frag")
+        self.shadow_vao = self.ctx.vertex_array(
+            self.shadow_prog,
+            [
+                (self.quad_buffer, "2f", "in_vert")
+            ]
+        )
 
-        self.objects.insert(idx, {
-            "texture": texture_idx,
+    def spawn_object(self, pos, texture_id):
+        self.objects.append({
             "pos": pos,
-            "angle": 0,
-            "target_angle": 0
+            "texture": texture_id
         })
 
-    def prepare_update(self):
+    def clear_forces(self):
         self.forces = []
 
-        for object in self.objects:
-            object["target_angle"] = 0
-
-    def apply_force(self, pos, dist, force):
+    def add_force(self, pos, dist, force):
         self.forces.append({
             "pos": pos,
             "dist": dist,
             "force": force
         })
 
-    def calculate_forces(self):
-        for force_dict in self.forces:
-            pos = force_dict["pos"]
-            dist = force_dict["dist"]
-            force = force_dict["force"]
+    def _compute_gpu_force_data(self):
+        self.num_forces = len(self.forces)
 
-            for blade in self.objects:
-                dist_to_pos = engine.vector2_distance(
-                    (0, 0),
-                    (
-                        abs(blade["pos"][0] - pos[0]),
-                        abs((blade["pos"][1] - pos[1]) ** 1.4)
-                    )
-                )
+        data = []
+        for force in self.forces:
+            data.append(force["pos"][0])
+            data.append(force["pos"][1])
+            data.append(force["dist"])
+            data.append(math.radians(force["force"]))
 
-                blade_force = 1 - (dist_to_pos / dist) ** 0.8
-                blade_force = max(0, blade_force)
+        np_data = np.array(data, dtype=np.float32)
+        self.force_buffer.orphan(np_data.nbytes)
+        self.force_buffer.write(np_data)
+        self.force_buffer.bind_to_storage_buffer(2)
 
-                mult = (1 if blade["pos"][0] > pos[0] else -1)
-                blade["target_angle"] += blade_force * force * mult
+    def compute_gpu_data(self):
+        self.objects.sort(key=lambda x: x["pos"][1])
 
-    def update(self):
-        delta = engine.get_frame_time()
+        objects = []
+        self.num_objects = 0
+        for obj in self.objects:
+            objects.append(obj["pos"][0])
+            objects.append(obj["pos"][1])
+            objects.append(0)
+            objects.append(obj["texture"])
+            self.num_objects += 1
 
-        for blade in self.objects:
-            blade["angle"] += (blade["target_angle"] - blade["angle"]) * delta * self.adaptivity
+        data = np.array(objects, dtype=np.float32)
+        self.object_buffer.orphan(data.nbytes)
+        self.object_buffer.write(data)
+        self.object_buffer.bind_to_storage_buffer(1)
 
-    def render_shadows(self):
-        for object in self.objects:
-            shadow = self.assets.get_shadow()
-            engine.draw_texture(
-                shadow,
-                int(object["pos"][0] - shadow.width / 2),
-                int(object["pos"][1] - shadow.height / 2),
-                engine.WHITE
-            )
+    def update_and_render(self):
+        res = engine.data.internal_size
+        camera_offset = engine.vector2_to_list(engine.elems["Camera"].get_raylib_pos())
+        camera_scale = engine.elems["Camera"].get_raylib_zoom()
 
-    def render(self):
-        for object in self.objects:
-            texture = self.assets.textures[object["texture"]]
+        print(res, camera_offset, camera_scale)
 
-            engine.draw_texture_pro(
-                texture["texture"],
-                (0, 0, texture["texture"].width, texture["texture"].height),
-                (object["pos"][0], object["pos"][1], texture["texture"].width, texture["texture"].height),
-                texture["origin"],
-                self.master_angle + object["angle"],
-                engine.WHITE
-            )
+        self._compute_gpu_force_data()
+
+        if self.render_shadows:
+            self.shadow_prog["RES"] = res
+            self.shadow_prog["camera_offset"] = camera_offset
+            self.shadow_prog["camera_scale"] = camera_scale
+
+            self.shadow_prog["shadow_size"] = self.shadow_size
+            self.shadow_prog["shadow_darkness"] = self.shadow_darkness
+
+            self.shadow_vao.render(mode=moderngl.TRIANGLE_STRIP, instances=self.num_objects)
+
+        atlas = self.assets.get_atlas()
+
+        atlas.use(0)
+        self.grass_prog["atlas"] = 0
+        self.grass_prog["num_forces"] = self.num_forces
+
+        self.grass_prog["RES"] = res
+        self.grass_prog["atlas_size"] = (atlas.width, atlas.height)
+
+        self.grass_prog["camera_offset"] = camera_offset
+        self.grass_prog["camera_scale"] = camera_scale
+
+        self.grass_prog["time"] = engine.get_time()
+        self.grass_prog["delta"] = engine.get_frame_time()
+        self.grass_prog["adaptivity"] = self.adaptivity
+        self.grass_prog["wind_speed"] = self.wind_speed
+        self.grass_prog["wind_force"] = math.radians(self.wind_force)
+
+        self.grass_prog["render_ao"] = self.render_ao
+
+        self.grass_vao.render(mode=moderngl.TRIANGLE_STRIP, instances=self.num_objects)
 
 class FoliageAssets:
-    def __init__(self, compute_ao=True, shadow_size=(32, 16), shadow_darkness=0.55, custom_shadow_texture=None):
-        self.textures: list[dict] = []
-        self.shadow = engine.load_render_texture(*shadow_size)
-        self.grass_shader = engine.load_shader("", "engine/assets/grass.frag")
-        engine.set_texture_filter(self.shadow.texture, engine.TextureFilter.TEXTURE_FILTER_BILINEAR)
-
+    def __init__(self, ctx, compute_ao=True):
+        self.ctx = ctx
         self.compute_ao = compute_ao
-        self.shadow_darkness = shadow_darkness
-        self.custom_shadow_texture = custom_shadow_texture
 
-        self.calculate_shadow()
+        self.textures = []
+        self.texture_buffer = None
+        self.atlas = None # computed later
 
-    def get(self, idx) -> dict:
-        return self.textures[idx]
+    def get_atlas(self):
+        return self.atlas
 
-    def get_shadow(self):
-        return self.shadow.texture
+    def compute_gpu_data(self):
+        texture_data = []
 
-    def get_grass_shader(self):
-        return self.grass_shader
+        # compute atlas size
+        final_width, final_height = 0, 0
+        for texture in self.textures:
+            final_width += texture["texture"].width
 
-    def calculate_shadow(self):
-        if self.custom_shadow_texture: # not sure if this works
-            self.shadow.texture = self.custom_shadow_texture
-            return
+            tex_height = texture["texture"].height
+            if tex_height > final_height:
+                final_height = tex_height
 
-        temp = engine.load_render_texture(self.shadow.texture.width, self.shadow.texture.height)
-        shader = engine.load_shader("", "engine/assets/shadow.frag")
-        engine.set_shader_value(shader, 1, pyray.ffi.new("float *", self.shadow_darkness), engine.ShaderUniformDataType.SHADER_UNIFORM_FLOAT)
+        # render textures onto atlas
+        atlas = engine.load_render_texture(final_width, final_height)
+        engine.begin_texture_mode(atlas)
 
-        width = self.shadow.texture.width
-        height = self.shadow.texture.height
+        cur_x = 0
+        for texture in self.textures:
+            tex = texture["texture"]
 
-        engine.begin_texture_mode(temp)
-        engine.draw_rectangle(0, 0, width, height, engine.WHITE)
+            texture_data.append(tex.width)
+            texture_data.append(tex.height)
+            texture_data.append(texture["origin"][0])
+            texture_data.append(texture["origin"][1])
+            texture_data.append(cur_x)
+            texture_data.append(0) # padding
+
+            engine.draw_texture_rec(
+                tex,
+                (0, 0, tex.width, -tex.height),
+                (cur_x, atlas.texture.height - tex.height),
+                engine.WHITE
+            )
+            cur_x += texture["texture"].width
+
         engine.end_texture_mode()
 
-        engine.begin_texture_mode(self.shadow)
-        engine.begin_shader_mode(shader)
-        engine.draw_texture(temp.texture, 0, 0, engine.WHITE)
-        engine.end_shader_mode()
-        engine.end_texture_mode()
+        # convert atlas to moderngl texture
+        self.atlas = engine.mgl.rl_tex_to_mgl_tex(self.ctx, atlas.texture)
 
-        engine.unload_render_texture(temp)
-        engine.unload_shader(shader)
+        # upload texture data buffer
+        if self.texture_buffer: self.texture_buffer.release()
+        self.texture_buffer = self.ctx.buffer(np.array(texture_data, dtype=np.float32))
+        self.texture_buffer.bind_to_storage_buffer(0)
 
-    def _add_single_image(self, texture, origin=None, use_center_as_origin=None):
-        if use_center_as_origin:
+        # unload stuff
+        engine.unload_texture(atlas.texture)
+
+    def add_texture(self, texture, origin=None):
+        if origin is None:
             origin = (
                 int(texture.width / 2),
                 int(texture.height / 2),
             )
 
-        temp = engine.load_render_texture(texture.width, texture.height)
-
-        engine.begin_texture_mode(temp)
-        engine.clear_background(engine.BLANK)
-        if self.compute_ao: engine.begin_shader_mode(self.grass_shader)
-
-        engine.draw_texture_rec(
-            texture,
-            (0, 0, texture.width, -texture.height),
-            (0, 0),
-            engine.WHITE
-        )
-
-        if self.compute_ao: engine.end_shader_mode()
-        engine.end_texture_mode()
-
-        image = engine.load_image_from_texture(temp.texture)
-        new_texture = engine.load_texture_from_image(image)
-
-        engine.unload_image(image)
-        engine.unload_render_texture(temp)
-        engine.unload_texture(texture)
-
         self.textures.append({
-            "texture": new_texture,
+            "texture": texture,
             "origin": origin
         })
-
-    def add_image(self, textures, origin=None, use_center_as_origin=None):
-        if type(textures) == engine.Texture:
-            self._add_single_image(textures, origin, use_center_as_origin)
-        else:
-            for texture in textures:
-                self._add_single_image(texture, origin, use_center_as_origin)
