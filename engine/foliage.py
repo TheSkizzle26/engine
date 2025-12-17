@@ -111,8 +111,6 @@ class FoliageManager:
         camera_offset = engine.vector2_to_list(engine.elems["Camera"].get_raylib_pos())
         camera_scale = engine.elems["Camera"].get_raylib_zoom()
 
-        print(res, camera_offset, camera_scale)
-
         self._compute_gpu_force_data()
 
         if self.render_shadows:
