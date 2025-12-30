@@ -45,9 +45,9 @@ void main() {
 
     // TODO: fix
     if (render_ao) {
-        float tex_uv_y = uv.y * tex_size.y;
+        float tex_uv_y = uv.y / (tex.origin.y / tex.size.y);
 
-        float b = 1 - tex_uv_y;
+        float b = 1 - pow(tex_uv_y, 1.333) * 0.6;
         color.x *= b;
         color.y *= b;
         color.z *= b;

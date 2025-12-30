@@ -169,6 +169,18 @@ class FoliageAssets:
             if tex_height > final_height:
                 final_height = tex_height
 
+        # calculate optimal atlas size
+
+        final_width_2 = 1
+        while final_width_2 < final_width:
+            final_width_2 *= 2
+        final_height_2 = 1
+        while final_height_2 < final_height:
+            final_height_2 *= 2
+
+        final_width = max(final_width_2, final_height_2)
+        final_height = max(final_width_2, final_height_2)
+
         # render textures onto atlas
         atlas = engine.load_render_texture(final_width, final_height)
         engine.begin_texture_mode(atlas)

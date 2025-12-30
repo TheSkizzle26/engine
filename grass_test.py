@@ -126,7 +126,7 @@ class Main(engine.Program):
         engine.clear_background((23, 70, 36))
 
         self.camera.begin()
-        self.grass.update_and_render()
+        self.grass.update_and_render(self.camera)
         self.camera.end()
 
         engine.draw_text(f"{self.num_blades} blades", 6, 0, 60, engine.WHITE)
