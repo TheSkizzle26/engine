@@ -1,5 +1,6 @@
-/uv.lock
-/pyproject.toml
-/assets/
-/.venv/
-/test.py
+uv.lock
+pyproject.toml
+assets
+.venv
+test.py
+.idea
