@@ -43,7 +43,6 @@ void main() {
 
     vec4 color = texture(atlas, tex_pos + uv * tex_size);
 
-    // TODO: fix
     if (render_ao) {
         float tex_uv_y = uv.y / (tex.origin.y / tex.size.y);
 
