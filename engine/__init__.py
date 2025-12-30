@@ -3,13 +3,7 @@ try:
 except ImportError:
     raise ImportError('Package "raylib" needs to be installed!')
 
-to_exclude = ["Rectangle"]
-for name in to_exclude:
-    del globals()[name]
-
 import engine.mgl
-
-from engine.deprecated import Rectangle#, Camera2D#, load_texture, load_sound
 from engine.utils import sign
 from engine.data import data
 from engine.vector import vector2_to_list, vector3_to_list, list_to_vector2, list_to_vector3
@@ -28,6 +22,8 @@ from engine.foliage import FoliageManager, FoliageAssets
 from engine.particles import ParticleManager, Particle
 from engine.logs import log, LogType
 from engine.game import Program, init
+
+from engine.deprecated import Rectangle, Camera2D, load_texture, load_sound
 
 print("Engine loaded successfully!")
 log.write("Engine loaded successfully!")

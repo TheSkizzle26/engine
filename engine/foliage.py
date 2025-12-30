@@ -106,10 +106,10 @@ class FoliageManager:
         self.object_buffer.write(data)
         self.object_buffer.bind_to_storage_buffer(1)
 
-    def update_and_render(self):
+    def update_and_render(self, camera: engine.Camera):
         res = engine.data.internal_size
-        camera_offset = engine.vector2_to_list(engine.elems["Camera"].get_raylib_pos())
-        camera_scale = engine.elems["Camera"].get_raylib_zoom()
+        camera_offset = engine.vector2_to_list(camera.get_raylib_pos())
+        camera_scale = camera.get_raylib_zoom()
 
         self._compute_gpu_force_data()
 
